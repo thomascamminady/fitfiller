@@ -1,0 +1,14 @@
+# Replace fitfiller.example with your domain. Caddy auto-provisions TLS.
+fitfiller.example {
+	encode gzip zstd
+
+	# API first so it wins over the SPA fallback. Keep the /api prefix —
+	# the Fastify app registers all routes under it.
+	handle /api/* {
+		reverse_proxy api:3001
+	}
+
+	handle {
+		reverse_proxy web:80
+	}
+}

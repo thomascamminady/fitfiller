@@ -1,0 +1,439 @@
+import type { AuthContext, FillMode, GapFill, PauseSegment, ParsedActivity } from '../types';
+import { fmtDistance, fmtDuration, fmtPace, fmtSport } from '../format';
+
+export interface PauseFillState {
+  enabled: boolean;
+  waypoints: { lat: number; lon: number }[];
+  actualBreakSeconds: number;
+  heartRate: FillMode;
+  heartRateValue: number;
+  cadence: FillMode;
+  cadenceValue: number;
+  elevation: 'linear' | 'route';
+  gradeAdjust: boolean;
+  preview: GapFill | null;
+  previewError: string | null;
+}
+
+interface Props {
+  activity: ParsedActivity;
+  filename: string;
+  activeIndex: number;
+  setActiveIndex: (i: number) => void;
+  fills: Record<string, PauseFillState>;
+  updateFill: (pauseId: string, patch: Partial<PauseFillState>) => void;
+  auth: AuthContext | null;
+  drawing: boolean;
+  setDrawing: (b: boolean) => void;
+  onUndoWaypoint: (pauseId: string) => void;
+  onClearWaypoints: (pauseId: string) => void;
+  onPreview: (pauseId: string) => void;
+  previewBusy: boolean;
+  onExport: () => void;
+  exportBusy: boolean;
+}
+
+function Switch({
+  checked,
+  onChange,
+  premium,
+  disabled,
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  premium?: boolean;
+  disabled?: boolean;
+}) {
+  return (
+    <button
+      role="switch"
+      aria-checked={checked}
+      className={`switch ${premium ? 'premium' : ''}`}
+      disabled={disabled}
+      onClick={() => onChange(!checked)}
+    />
+  );
+}
+
+function FillControl({
+  label,
+  mode,
+  value,
+  unit,
+  onMode,
+  onValue,
+}: {
+  label: string;
+  mode: FillMode;
+  value: number;
+  unit: string;
+  onMode: (v: FillMode) => void;
+  onValue: (v: number) => void;
+}) {
+  return (
+    <div className="toggle-row fill-control">
+      <span>{label}</span>
+      <div className="fill-inputs">
+        {mode === 'value' && (
+          <input
+            className="input"
+            type="number"
+            min={0}
+            aria-label={`${label} ${unit}`}
+            value={value}
+            onChange={(e) => onValue(Math.max(0, Number(e.target.value)))}
+          />
+        )}
+        <select
+          className="select"
+          value={mode}
+          onChange={(e) => onMode(e.target.value as FillMode)}
+        >
+          <option value="none">Leave empty</option>
+          <option value="average">Average</option>
+          <option value="value">Set value</option>
+        </select>
+      </div>
+    </div>
+  );
+}
+
+export function PauseInspector(props: Props) {
+  const {
+    activity,
+    activeIndex,
+    setActiveIndex,
+    fills,
+    updateFill,
+    auth,
+    drawing,
+    setDrawing,
+    onUndoWaypoint,
+    onClearWaypoints,
+    onPreview,
+    previewBusy,
+    onExport,
+    exportBusy,
+  } = props;
+
+  const { summary, pauses } = activity;
+  const pause: PauseSegment | undefined = pauses[activeIndex];
+  const isPremium = auth?.isPremium ?? false;
+  const enabledCount = Object.values(fills).filter((f) => f.enabled).length;
+
+  return (
+    <aside className="sidebar">
+      <section className="sidebar-section">
+        <p className="eyebrow">{fmtSport(summary.sport)}</p>
+        <div className="summary-grid">
+          <Stat label="Distance" value={fmtDistance(summary.totalDistanceMeters)} />
+          <Stat label="Moving time" value={fmtDuration(summary.totalTimerSeconds)} />
+          <Stat label="Laps" value={String(summary.lapCount)} />
+          <Stat label="Pauses found" value={String(summary.pauseCount)} />
+        </div>
+      </section>
+
+      {pauses.length === 0 ? (
+        <section className="sidebar-section">
+          <p className="notice">
+            No paused segments detected — nothing to fill. Your watch ran clean.
+          </p>
+        </section>
+      ) : (
+        <section className="sidebar-section">
+          <div className="stepper-head">
+            <h3>
+              Pause {activeIndex + 1}{' '}
+              <span className="notice">of {pauses.length}</span>
+            </h3>
+            <div className="stepper-nav">
+              <button
+                className="icon-btn"
+                aria-label="Previous pause"
+                disabled={activeIndex === 0}
+                onClick={() => setActiveIndex(activeIndex - 1)}
+              >
+                ‹
+              </button>
+              <button
+                className="icon-btn"
+                aria-label="Next pause"
+                disabled={activeIndex === pauses.length - 1}
+                onClick={() => setActiveIndex(activeIndex + 1)}
+              >
+                ›
+              </button>
+            </div>
+          </div>
+
+          {/* The broken-trace ribbon: each gap node, orange unfilled, green filled. */}
+          <div className="ribbon" role="tablist" aria-label="Pauses">
+            {pauses.map((p, i) => (
+              <button
+                key={p.id}
+                role="tab"
+                aria-selected={i === activeIndex}
+                aria-label={`Pause ${i + 1}`}
+                className={`ribbon-node gap ${i === activeIndex ? 'active' : ''} ${
+                  fills[p.id]?.enabled ? 'filled' : ''
+                }`}
+                onClick={() => setActiveIndex(i)}
+              />
+            ))}
+          </div>
+
+          {pause && (
+            <PauseCard
+              pause={pause}
+              state={fills[pause.id]!}
+              update={(patch) => updateFill(pause.id, patch)}
+              isPremium={isPremium}
+              drawing={drawing}
+              setDrawing={setDrawing}
+              onUndo={() => onUndoWaypoint(pause.id)}
+              onClear={() => onClearWaypoints(pause.id)}
+              onPreview={() => onPreview(pause.id)}
+              previewBusy={previewBusy}
+            />
+          )}
+        </section>
+      )}
+
+      {pauses.length > 0 && (
+        <div className="export-bar">
+          <p className="summary-line">
+            {enabledCount === 0
+              ? 'Enable “Fill this gap” on the pauses you want to rebuild.'
+              : `${enabledCount} gap${enabledCount > 1 ? 's' : ''} will be written into the new file.`}
+          </p>
+          <button
+            className="btn btn-primary"
+            style={{ width: '100%', justifyContent: 'center' }}
+            disabled={enabledCount === 0 || exportBusy}
+            onClick={onExport}
+          >
+            {exportBusy ? 'Building file…' : 'Export corrected .fit'}
+          </button>
+        </div>
+      )}
+    </aside>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="stat">
+      <div className="label">{label}</div>
+      <div className="value">{value}</div>
+    </div>
+  );
+}
+
+function PauseCard({
+  pause,
+  state,
+  update,
+  isPremium,
+  drawing,
+  setDrawing,
+  onUndo,
+  onClear,
+  onPreview,
+  previewBusy,
+}: {
+  pause: PauseSegment;
+  state: PauseFillState;
+  update: (patch: Partial<PauseFillState>) => void;
+  isPremium: boolean;
+  drawing: boolean;
+  setDrawing: (b: boolean) => void;
+  onUndo: () => void;
+  onClear: () => void;
+  onPreview: () => void;
+  previewBusy: boolean;
+}) {
+  const hasGps =
+    pause.before.lat !== null &&
+    pause.before.lon !== null &&
+    pause.after.lat !== null &&
+    pause.after.lon !== null;
+
+  const breakSec = Math.min(state.actualBreakSeconds, pause.pausedSeconds);
+  const movingSeconds = Math.max(1, pause.pausedSeconds - breakSec);
+
+  return (
+    <div className="pause-card">
+      <div className="pause-readout">
+        <Stat label="Paused for" value={fmtDuration(pause.pausedSeconds)} />
+        <Stat label="Distance apart" value={fmtDistance(pause.straightLineMeters)} />
+      </div>
+      {pause.straightLineMeters < 25 ? (
+        <span className="gap-hint">
+          ● Barely moved — likely a real break, not a missed segment
+        </span>
+      ) : (
+        <span className="gap-hint" style={{ background: 'var(--gap-tint)', color: '#9a3a12' }}>
+          ● Moved ~{fmtDistance(pause.straightLineMeters)} while paused — worth filling
+        </span>
+      )}
+
+      {!hasGps ? (
+        <p className="notice">
+          This pause has no GPS fix on one side, so it can't be traced on the
+          map. Skip it or fix it in a GPS editor.
+        </p>
+      ) : (
+        <>
+          <div className="toggle-row" style={{ borderTop: 'none' }}>
+            <span>
+              <strong>Fill this gap</strong>
+            </span>
+            <Switch
+              checked={state.enabled}
+              onChange={(v) => update({ enabled: v })}
+            />
+          </div>
+
+          {state.enabled && (
+            <>
+              <div className="field" style={{ marginTop: 14 }}>
+                <label>
+                  Trace the route you ran{' '}
+                  <span className="sub">
+                    ({state.waypoints.length} point
+                    {state.waypoints.length === 1 ? '' : 's'} added)
+                  </span>
+                </label>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button
+                    className={`btn btn-sm ${drawing ? 'btn-gap' : 'btn-ghost'}`}
+                    onClick={() => setDrawing(!drawing)}
+                  >
+                    {drawing ? 'Done drawing' : 'Draw on map'}
+                  </button>
+                  <button
+                    className="btn btn-ghost btn-sm"
+                    onClick={onUndo}
+                    disabled={state.waypoints.length === 0}
+                  >
+                    Undo
+                  </button>
+                  <button
+                    className="btn btn-ghost btn-sm"
+                    onClick={onClear}
+                    disabled={state.waypoints.length === 0}
+                  >
+                    Clear
+                  </button>
+                </div>
+              </div>
+
+              <div className="field">
+                <label>
+                  Actual break <span className="sub">seconds standing still</span>
+                </label>
+                <input
+                  className="input"
+                  type="number"
+                  min={0}
+                  max={Math.floor(pause.pausedSeconds)}
+                  value={state.actualBreakSeconds}
+                  onChange={(e) =>
+                    update({ actualBreakSeconds: Math.max(0, Number(e.target.value)) })
+                  }
+                />
+              </div>
+
+              <FillControl
+                label="Heart rate"
+                unit="bpm"
+                mode={state.heartRate}
+                value={state.heartRateValue}
+                onMode={(v) => update({ heartRate: v })}
+                onValue={(v) => update({ heartRateValue: v })}
+              />
+              <FillControl
+                label="Cadence"
+                unit="rpm"
+                mode={state.cadence}
+                value={state.cadenceValue}
+                onMode={(v) => update({ cadence: v })}
+                onValue={(v) => update({ cadenceValue: v })}
+              />
+
+              <div className="toggle-row">
+                <span>
+                  Real elevation
+                  <span className="premium-tag">PREMIUM</span>
+                </span>
+                <Switch
+                  premium
+                  disabled={!isPremium}
+                  checked={state.elevation === 'route'}
+                  onChange={(v) => update({ elevation: v ? 'route' : 'linear' })}
+                />
+              </div>
+              <div className="toggle-row">
+                <span>
+                  Grade-adjusted pace
+                  <span className="premium-tag">PREMIUM</span>
+                </span>
+                <Switch
+                  premium
+                  disabled={!isPremium}
+                  checked={state.gradeAdjust}
+                  onChange={(v) => update({ gradeAdjust: v })}
+                />
+              </div>
+
+              <button
+                className="btn btn-ghost btn-sm"
+                style={{ marginTop: 14 }}
+                onClick={onPreview}
+                disabled={previewBusy}
+              >
+                {previewBusy ? 'Calculating…' : 'Preview filled segment'}
+              </button>
+
+              {state.previewError && (
+                <div className="preview-result error">{state.previewError}</div>
+              )}
+              {state.preview && !state.previewError && (
+                <div className="preview-result">
+                  <div className="pause-readout" style={{ margin: 0 }}>
+                    <Stat
+                      label="Filled distance"
+                      value={fmtDistance(state.preview.addedDistanceMeters)}
+                    />
+                    <Stat
+                      label="Moving time"
+                      value={fmtDuration(state.preview.movingSeconds)}
+                    />
+                    <Stat
+                      label="Avg pace"
+                      value={fmtPace(
+                        state.preview.addedDistanceMeters /
+                          state.preview.movingSeconds,
+                      )}
+                    />
+                    <Stat
+                      label="Added points"
+                      value={String(state.preview.records.length)}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {!state.preview && (
+                <p className="notice" style={{ marginTop: 10 }}>
+                  Moving time {fmtDuration(movingSeconds)} · trace a route, then
+                  preview to see pace.
+                </p>
+              )}
+            </>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
