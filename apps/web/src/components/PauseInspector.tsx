@@ -1,5 +1,6 @@
 import type { AuthContext, FillMode, GapFill, PauseSegment, ParsedActivity } from '../types';
 import { fmtDistance, fmtDuration, fmtPace, fmtSport } from '../format';
+import { pauseStatus, pauseHasGps, type PauseStatus } from '../pauseStatus';
 
 export interface PauseFillState {
   enabled: boolean;
@@ -121,6 +122,9 @@ export function PauseInspector(props: Props) {
   const isPremium = auth?.isPremium ?? false;
   const enabledCount = Object.values(fills).filter((f) => f.enabled).length;
 
+  const statuses = pauses.map((p) => pauseStatus(p, fills[p.id]?.enabled ?? false));
+  const issueCount = statuses.filter((s) => s === 'issue').length;
+
   return (
     <aside className="sidebar">
       <section className="sidebar-section">
@@ -166,21 +170,27 @@ export function PauseInspector(props: Props) {
             </div>
           </div>
 
-          {/* The broken-trace ribbon: each gap node, orange unfilled, green filled. */}
+          {/* The broken-trace ribbon: each gap node coloured by its status —
+             warning (needs a fix), calm (real break), green (being filled). */}
           <div className="ribbon" role="tablist" aria-label="Pauses">
             {pauses.map((p, i) => (
               <button
                 key={p.id}
                 role="tab"
                 aria-selected={i === activeIndex}
-                aria-label={`Pause ${i + 1}`}
-                className={`ribbon-node gap ${i === activeIndex ? 'active' : ''} ${
-                  fills[p.id]?.enabled ? 'filled' : ''
-                }`}
+                aria-label={`Pause ${i + 1} — ${statuses[i]}`}
+                title={`Pause ${i + 1}`}
+                className={`ribbon-node status-${statuses[i]} ${i === activeIndex ? 'active' : ''}`}
                 onClick={() => setActiveIndex(i)}
               />
             ))}
           </div>
+
+          <p className={`ribbon-summary ${issueCount > 0 ? 'warn' : 'calm'}`}>
+            {issueCount > 0
+              ? `${issueCount} gap${issueCount > 1 ? 's' : ''} look${issueCount > 1 ? '' : 's'} wrong — step through and fill ${issueCount > 1 ? 'them' : 'it'}.`
+              : 'No gaps need fixing — every pause looks like a real break.'}
+          </p>
 
           {pause && (
             <PauseCard
@@ -229,6 +239,22 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
+function StatusBadge({ status, meters }: { status: PauseStatus; meters: number }) {
+  const text: Record<PauseStatus, string> = {
+    break: 'Barely moved — likely a real break, probably nothing to fix',
+    issue: `Moved ~${fmtDistance(meters)} while paused — the watch missed real ground`,
+    fixed: 'Rebuilding this gap — it will be written into the new file',
+    nogps: 'No GPS on one side — this gap can’t be traced on the map',
+  };
+  const icon: Record<PauseStatus, string> = { break: '✓', issue: '⚠', fixed: '✓', nogps: '—' };
+  return (
+    <span className={`status-badge tone-${status}`}>
+      <span className="status-icon">{icon[status]}</span>
+      {text[status]}
+    </span>
+  );
+}
+
 function PauseCard({
   pause,
   state,
@@ -252,11 +278,8 @@ function PauseCard({
   onPreview: () => void;
   previewBusy: boolean;
 }) {
-  const hasGps =
-    pause.before.lat !== null &&
-    pause.before.lon !== null &&
-    pause.after.lat !== null &&
-    pause.after.lon !== null;
+  const hasGps = pauseHasGps(pause);
+  const status: PauseStatus = pauseStatus(pause, state.enabled);
 
   const breakSec = Math.min(state.actualBreakSeconds, pause.pausedSeconds);
   const movingSeconds = Math.max(1, pause.pausedSeconds - breakSec);
@@ -267,15 +290,7 @@ function PauseCard({
         <Stat label="Paused for" value={fmtDuration(pause.pausedSeconds)} />
         <Stat label="Distance apart" value={fmtDistance(pause.straightLineMeters)} />
       </div>
-      {pause.straightLineMeters < 25 ? (
-        <span className="gap-hint">
-          ● Barely moved — likely a real break, not a missed segment
-        </span>
-      ) : (
-        <span className="gap-hint" style={{ background: 'var(--gap-tint)', color: '#9a3a12' }}>
-          ● Moved ~{fmtDistance(pause.straightLineMeters)} while paused — worth filling
-        </span>
-      )}
+      <StatusBadge status={status} meters={pause.straightLineMeters} />
 
       {!hasGps ? (
         <p className="notice">
@@ -304,12 +319,17 @@ function PauseCard({
                     {state.waypoints.length === 1 ? '' : 's'} added)
                   </span>
                 </label>
+                <p className="help-text">
+                  {drawing
+                    ? 'Click along the map from the blue point to the red point — one click per bend. Finish on the map when you’re done.'
+                    : 'Optional. We connect the blue and red points with a straight line — only draw if you didn’t run straight.'}
+                </p>
                 <div style={{ display: 'flex', gap: 8 }}>
                   <button
-                    className={`btn btn-sm ${drawing ? 'btn-gap' : 'btn-ghost'}`}
+                    className={`btn btn-sm ${drawing ? 'btn-primary' : 'btn-route'}`}
                     onClick={() => setDrawing(!drawing)}
                   >
-                    {drawing ? 'Done drawing' : 'Draw on map'}
+                    {drawing ? '✓ Finish drawing' : '✎ Draw your route'}
                   </button>
                   <button
                     className="btn btn-ghost btn-sm"

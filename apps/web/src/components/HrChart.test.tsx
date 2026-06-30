@@ -24,6 +24,7 @@ describe('HrChart', () => {
       <HrChart
         points={points}
         pauses={activity.pauses}
+        pauseStatuses={{}}
         laps={activity.laps}
         activePauseId={activity.pauses[0]!.id}
         filledByPause={{}}
@@ -35,6 +36,25 @@ describe('HrChart', () => {
     expect(container.querySelector('.hr-line.trace')).toBeTruthy();
   });
 
+  it('renders an elevation panel when altitude is present', () => {
+    const activity = makeActivity(1);
+    const points = [pt(0, 150), pt(1, 152), pt(60, 158), pt(61, 160)];
+    const { container, getByText } = render(
+      <HrChart
+        points={points}
+        pauses={activity.pauses}
+        pauseStatuses={{}}
+        laps={activity.laps}
+        activePauseId={null}
+        filledByPause={{}}
+      />,
+    );
+    // Both HR and Elevation panel labels are drawn.
+    expect(getByText('HEART RATE')).toBeInTheDocument();
+    expect(getByText('ELEVATION')).toBeInTheDocument();
+    expect(container.querySelector('.hr-area')).toBeTruthy();
+  });
+
   it('draws a filled overlay when a preview exists', () => {
     const activity = makeActivity(1);
     const points = [pt(0, 150), pt(60, 158)];
@@ -43,6 +63,7 @@ describe('HrChart', () => {
       <HrChart
         points={points}
         pauses={activity.pauses}
+        pauseStatuses={{}}
         laps={[]}
         activePauseId={null}
         filledByPause={{ [activity.pauses[0]!.id]: filled }}
@@ -51,16 +72,18 @@ describe('HrChart', () => {
     expect(container.querySelector('.hr-line.fill')).toBeTruthy();
   });
 
-  it('shows an empty state without heart-rate data', () => {
+  it('shows an empty state with neither heart-rate nor elevation data', () => {
+    const blank = (sec: number): TrackPoint => ({ ...pt(sec, null), altitude: null });
     const { getByText } = render(
       <HrChart
-        points={[pt(0, null), pt(1, null)]}
+        points={[blank(0), blank(1)]}
         pauses={[]}
+        pauseStatuses={{}}
         laps={[]}
         activePauseId={null}
         filledByPause={{}}
       />,
     );
-    expect(getByText(/no heart-rate data/i)).toBeInTheDocument();
+    expect(getByText(/no heart-rate or elevation data/i)).toBeInTheDocument();
   });
 });

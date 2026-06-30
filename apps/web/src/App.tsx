@@ -20,6 +20,7 @@ import {
 import { Legal, type LegalPage } from './components/Legal';
 import { PremiumModal } from './components/PremiumModal';
 import { ExportReview } from './components/ExportReview';
+import { pauseStatus, type PauseStatus } from './pauseStatus';
 
 function defaultFill(): PauseFillState {
   return {
@@ -70,6 +71,16 @@ export function App() {
     return () => clearTimeout(t);
   }, [toast]);
 
+  // Esc finishes drawing — a familiar "I'm done" gesture.
+  useEffect(() => {
+    if (!drawing) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setDrawing(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [drawing]);
+
   const pauses = upload?.activity.pauses ?? [];
   const activePause = pauses[activeIndex] ?? null;
   const activeFill = activePause ? fills[activePause.id] : undefined;
@@ -83,6 +94,12 @@ export function App() {
       { lat: after.lat!, lon: after.lon! },
     ];
   }, [activePause, activeFill?.waypoints]);
+
+  const pauseStatuses = useMemo<Record<string, PauseStatus>>(() => {
+    const out: Record<string, PauseStatus> = {};
+    for (const p of pauses) out[p.id] = pauseStatus(p, fills[p.id]?.enabled ?? false);
+    return out;
+  }, [pauses, fills]);
 
   // Filled HR records per pause, for the chart overlay.
   const filledByPause = useMemo<Record<string, TrackPoint[]>>(() => {
@@ -321,6 +338,7 @@ export function App() {
               <MapView
                 points={upload.activity.points}
                 pauses={pauses}
+                pauseStatuses={pauseStatuses}
                 activePause={activePause}
                 route={activeRoute}
                 previewRecords={activeFill?.preview?.records ?? null}
@@ -329,13 +347,26 @@ export function App() {
               />
               {drawing && (
                 <div className="draw-banner">
-                  Click the map to trace your route
-                  <button
-                    className="btn btn-sm btn-ghost"
-                    onClick={() => setDrawing(false)}
-                  >
-                    Done
-                  </button>
+                  <span className="draw-step">
+                    {(() => {
+                      const n = activeFill?.waypoints.length ?? 0;
+                      if (n === 0)
+                        return 'Click the map at the blue “Paused” point, then along the path you ran.';
+                      return `${n} point${n === 1 ? '' : 's'} added — keep clicking toward the red “Resumed” point.`;
+                    })()}
+                  </span>
+                  <div className="draw-actions">
+                    <button
+                      className="btn btn-sm btn-ghost-light"
+                      onClick={() => activePause && undoWaypoint(activePause.id)}
+                      disabled={(activeFill?.waypoints.length ?? 0) === 0}
+                    >
+                      Undo
+                    </button>
+                    <button className="btn btn-sm btn-light" onClick={() => setDrawing(false)}>
+                      Done
+                    </button>
+                  </div>
                 </div>
               )}
               <div className="map-legend">
@@ -354,6 +385,7 @@ export function App() {
             <HrChart
               points={upload.activity.points}
               pauses={pauses}
+              pauseStatuses={pauseStatuses}
               laps={upload.activity.laps}
               activePauseId={activePause?.id ?? null}
               filledByPause={filledByPause}

@@ -2,9 +2,11 @@ import { useEffect, useRef } from 'react';
 import maplibregl, {
   type Map as MlMap,
   type GeoJSONSource,
+  type ExpressionSpecification,
   Marker,
 } from 'maplibre-gl';
 import type { GeoPoint, PauseSegment, TrackPoint } from '../types';
+import { STATUS_META, type PauseStatus } from '../pauseStatus';
 
 const MAP_STYLE =
   import.meta.env.VITE_MAP_STYLE ?? 'https://tiles.openfreemap.org/styles/liberty';
@@ -17,6 +19,7 @@ const FILL = '#1f6f4a'; // the reconstructed segment — green
 interface Props {
   points: TrackPoint[];
   pauses: PauseSegment[];
+  pauseStatuses: Record<string, PauseStatus>;
   activePause: PauseSegment | null;
   route: GeoPoint[];
   previewRecords: TrackPoint[] | null;
@@ -49,6 +52,28 @@ function pointsFrom(coords: [number, number][]): FC {
   };
 }
 
+/** Points tagged with a pause status so MapLibre can colour them per-feature. */
+function statusPointsFrom(items: { coord: [number, number]; status: PauseStatus }[]): FC {
+  return {
+    type: 'FeatureCollection',
+    features: items.map((it) => ({
+      type: 'Feature',
+      properties: { status: it.status },
+      geometry: { type: 'Point', coordinates: it.coord },
+    })),
+  };
+}
+
+// Per-feature colour from the `status` property; matches the ribbon & chart.
+const STATUS_CIRCLE_COLOR: ExpressionSpecification = [
+  'match',
+  ['get', 'status'],
+  'issue', STATUS_META.issue.color,
+  'fixed', STATUS_META.fixed.color,
+  'nogps', STATUS_META.nogps.color,
+  STATUS_META.break.color,
+];
+
 const trackCoords = (pts: { lat: number | null; lon: number | null }[]) =>
   pts
     .filter((p) => p.lat !== null && p.lon !== null)
@@ -75,6 +100,7 @@ const prefersReducedMotion = () =>
 export function MapView({
   points,
   pauses,
+  pauseStatuses,
   activePause,
   route,
   previewRecords,
@@ -129,7 +155,13 @@ export function MapView({
           },
         });
       };
-      const addCircle = (id: string, color: string, radius: number, stroke = 0, opacity = 1) => {
+      const addCircle = (
+        id: string,
+        color: string | ExpressionSpecification,
+        radius: number,
+        stroke = 0,
+        opacity = 1,
+      ) => {
         map.addSource(id, { type: 'geojson', data: EMPTY });
         map.addLayer({
           id,
@@ -148,7 +180,7 @@ export function MapView({
       // Bottom → top. The black track is context; the active repair pops via
       // the blue/red endpoint pins and the green fill.
       addLine('track', TRACE, 3, { opacity: 0.85 }); // recorded track (black)
-      addCircle('pause-pts', '#94a3b8', 4, 1, 0.7); // other (inactive) pauses
+      addCircle('pause-pts', STATUS_CIRCLE_COLOR, 5, 1.5, 0.95); // other pauses, by status
       addLine('gap', FILL, 3, { dash: [1.5, 1.8] }); // the section being repaired
       addLine('preview-casing', '#ffffff', 9); // halo so the fill pops
       addLine('preview', FILL, 5); // the filled track (hero)
@@ -183,11 +215,17 @@ export function MapView({
     src('track')?.setData(lineFrom(trackCoords(points)));
 
     // Inactive pauses only — the active one is shown via pins + the gap line.
+    // Each dot is coloured by its status so problems stand out on the map.
     const otherPauses = pauses
       .filter((p) => p.id !== activePause?.id)
-      .flatMap((p) => [endpoint(p.before), endpoint(p.after)])
-      .filter((c): c is [number, number] => c !== null);
-    src('pause-pts')?.setData(pointsFrom(otherPauses));
+      .flatMap((p) => {
+        const status = pauseStatuses[p.id] ?? 'break';
+        const ends = [endpoint(p.before), endpoint(p.after)];
+        return ends
+          .filter((c): c is [number, number] => c !== null)
+          .map((coord) => ({ coord, status }));
+      });
+    src('pause-pts')?.setData(statusPointsFrom(otherPauses));
 
     // The active repair: orange "gap" line until a green fill is previewed.
     const routeCoords = route.map((p) => [p.lon, p.lat] as [number, number]);
@@ -239,7 +277,7 @@ export function MapView({
     sync();
     syncPins();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [points, pauses, activePause, route, previewRecords]);
+  }, [points, pauses, pauseStatuses, activePause, route, previewRecords]);
 
   // Re-frame only when the *active pause* changes (not while drawing).
   useEffect(() => {
