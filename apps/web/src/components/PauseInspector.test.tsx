@@ -64,19 +64,12 @@ describe('PauseInspector', () => {
     });
   });
 
-  it('shows the current pause position in the stepper', () => {
-    renderInspector({ activeIndex: 0 });
-    expect(screen.getByText('Pause 1')).toBeInTheDocument();
-    expect(screen.getByText('of 2')).toBeInTheDocument();
-  });
-
-  it('disables previous on the first pause and advances on next', async () => {
-    const { handlers } = renderInspector({ activeIndex: 0 });
-    expect(
-      screen.getByRole('button', { name: /previous pause/i }),
-    ).toBeDisabled();
-    await userEvent.click(screen.getByRole('button', { name: /next pause/i }));
-    expect(handlers.setActiveIndex).toHaveBeenCalledWith(1);
+  it('shows the overview and starts a review from it', async () => {
+    const { handlers } = renderInspector({ activeIndex: -1 });
+    expect(screen.getByText(/gaps? to fix/i)).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: /review gaps/i }));
+    // makePause defaults to a 450 m move → an issue → jump to the first one.
+    expect(handlers.setActiveIndex).toHaveBeenCalledWith(0);
   });
 
   it('enables a fill when the toggle is switched on', async () => {

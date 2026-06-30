@@ -132,6 +132,8 @@ export function PauseInspector(props: Props) {
     pauseStatus(p, fills[p.id]?.enabled ?? false),
   );
   const issueCount = statuses.filter((s) => s === 'issue').length;
+  const firstReviewIndex = Math.max(0, statuses.indexOf('issue'));
+  const plural = (n: number) => (n === 1 ? '' : 's');
 
   return (
     <aside className="sidebar">
@@ -157,55 +159,34 @@ export function PauseInspector(props: Props) {
             No paused segments detected — nothing to fill. Your watch ran clean.
           </p>
         </section>
+      ) : activeIndex < 0 ? (
+        /* Overview: the whole file is shown on the map; invite the review. */
+        <section className="sidebar-section overview-panel">
+          <p className="eyebrow">Review</p>
+          <h3 className="overview-title">
+            {issueCount > 0
+              ? `${issueCount} gap${plural(issueCount)} to fix`
+              : 'Nothing needs fixing'}
+          </h3>
+          <p className="notice">
+            {pauses.length} pause{plural(pauses.length)} detected.{' '}
+            {issueCount > 0
+              ? `${issueCount} look${issueCount === 1 ? 's' : ''} like the watch missed real ground — the rest read as genuine breaks.`
+              : 'They all look like genuine breaks.'}
+          </p>
+          <button
+            className="btn btn-primary"
+            style={{ width: '100%', justifyContent: 'center' }}
+            onClick={() => setActiveIndex(firstReviewIndex)}
+          >
+            {issueCount > 0 ? 'Review gaps' : 'Step through pauses'}
+          </button>
+          <p className="help-text" style={{ textAlign: 'center', margin: 0 }}>
+            or pick a gap on the bar above the map
+          </p>
+        </section>
       ) : (
         <section className="sidebar-section">
-          <div className="stepper-head">
-            <h3>
-              Pause {activeIndex + 1}{' '}
-              <span className="notice">of {pauses.length}</span>
-            </h3>
-            <div className="stepper-nav">
-              <button
-                className="icon-btn"
-                aria-label="Previous pause"
-                disabled={activeIndex === 0}
-                onClick={() => setActiveIndex(activeIndex - 1)}
-              >
-                ‹
-              </button>
-              <button
-                className="icon-btn"
-                aria-label="Next pause"
-                disabled={activeIndex === pauses.length - 1}
-                onClick={() => setActiveIndex(activeIndex + 1)}
-              >
-                ›
-              </button>
-            </div>
-          </div>
-
-          {/* The broken-trace ribbon: each gap node coloured by its status —
-             warning (needs a fix), calm (real break), green (being filled). */}
-          <div className="ribbon" role="tablist" aria-label="Pauses">
-            {pauses.map((p, i) => (
-              <button
-                key={p.id}
-                role="tab"
-                aria-selected={i === activeIndex}
-                aria-label={`Pause ${i + 1} — ${statuses[i]}`}
-                title={`Pause ${i + 1}`}
-                className={`ribbon-node status-${statuses[i]} ${i === activeIndex ? 'active' : ''}`}
-                onClick={() => setActiveIndex(i)}
-              />
-            ))}
-          </div>
-
-          <p className={`ribbon-summary ${issueCount > 0 ? 'warn' : 'calm'}`}>
-            {issueCount > 0
-              ? `${issueCount} gap${issueCount > 1 ? 's' : ''} look${issueCount > 1 ? '' : 's'} wrong — step through and fill ${issueCount > 1 ? 'them' : 'it'}.`
-              : 'No gaps need fixing — every pause looks like a real break.'}
-          </p>
-
           {pause && (
             <PauseCard
               pause={pause}

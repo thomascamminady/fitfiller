@@ -12,6 +12,7 @@ import { TopBar } from './components/TopBar';
 import { Footer } from './components/Footer';
 import { Landing } from './components/Landing';
 import { MapView } from './components/MapView';
+import { StepperBar } from './components/StepperBar';
 import { HrChart } from './components/HrChart';
 import {
   PauseInspector,
@@ -47,7 +48,8 @@ export function App() {
   const [auth, setAuth] = useState<AuthContext | null>(null);
   const [upload, setUpload] = useState<UploadResponse | null>(null);
   const [fills, setFills] = useState<Record<string, PauseFillState>>({});
-  const [activeIndex, setActiveIndex] = useState(0);
+  // -1 = overview: show the whole file before stepping into individual gaps.
+  const [activeIndex, setActiveIndex] = useState(-1);
   const [drawing, setDrawing] = useState(false);
 
   const [uploadBusy, setUploadBusy] = useState(false);
@@ -126,7 +128,7 @@ export function App() {
           res.activity.pauses.map((p) => [p.id, defaultFill()]),
         ),
       );
-      setActiveIndex(0);
+      setActiveIndex(-1); // land on the overview, not the first gap
       setDrawing(false);
     } catch (err) {
       setToast({ message: errMessage(err), error: true });
@@ -310,7 +312,7 @@ export function App() {
   const reset = useCallback(() => {
     setUpload(null);
     setFills({});
-    setActiveIndex(0);
+    setActiveIndex(-1);
     setDrawing(false);
   }, []);
 
@@ -360,6 +362,23 @@ export function App() {
                 drawing={drawing}
                 onAddWaypoint={addWaypoint}
               />
+              {activePause && (
+                <div
+                  className={`map-status-wash tone-${pauseStatuses[activePause.id] ?? 'break'}`}
+                  aria-hidden="true"
+                />
+              )}
+              {!drawing && (
+                <StepperBar
+                  pauses={pauses}
+                  statuses={pauseStatuses}
+                  activeIndex={activeIndex}
+                  onSelect={(i) => {
+                    setActiveIndex(i);
+                    setDrawing(false);
+                  }}
+                />
+              )}
               {drawing && (
                 <div className="draw-banner">
                   <span className="draw-step">

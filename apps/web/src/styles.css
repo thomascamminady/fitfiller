@@ -566,6 +566,129 @@ button.tier-chip.upgrade:hover {
   flex-shrink: 0;
 }
 
+/* Big, centred pause navigator floating over the map. */
+.stepper-bar {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: min(560px, calc(100% - 28px));
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  padding: 12px 14px;
+}
+.step-arrow {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  border: 1px solid var(--line-strong);
+  background: var(--panel);
+  color: var(--ink);
+  font-size: 24px;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+}
+.step-arrow:hover:not(:disabled) {
+  border-color: var(--ink);
+}
+.step-arrow:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.step-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.step-count {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-align: center;
+}
+.step-n {
+  color: var(--ink);
+  font-size: 19px;
+  font-weight: 600;
+  margin: 0 2px;
+}
+.step-ribbon {
+  display: flex;
+  gap: 6px;
+}
+.step-node {
+  flex: 1;
+  height: 13px;
+  border-radius: 7px;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  opacity: 0.5;
+  transition:
+    opacity 0.15s,
+    transform 0.15s;
+}
+.step-node.status-break {
+  background: var(--st-break);
+}
+.step-node.status-issue {
+  background: var(--st-issue);
+}
+.step-node.status-fixed {
+  background: var(--st-fixed);
+}
+.step-node.status-nogps {
+  background: var(--st-nogps);
+}
+.step-node:hover {
+  opacity: 0.8;
+}
+.step-node.active {
+  opacity: 1;
+  transform: scaleY(1.25);
+  box-shadow:
+    0 0 0 2px var(--panel),
+    0 0 0 4px rgba(20, 22, 28, 0.5);
+}
+
+/* A status-coloured wash over the map while a gap is being reviewed. */
+.map-status-wash {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+.map-status-wash.tone-issue {
+  background: rgba(217, 98, 43, 0.06);
+  box-shadow:
+    inset 0 0 0 3px rgba(217, 98, 43, 0.5),
+    inset 0 0 90px rgba(217, 98, 43, 0.16);
+}
+.map-status-wash.tone-fixed {
+  background: rgba(31, 122, 77, 0.05);
+  box-shadow:
+    inset 0 0 0 3px rgba(31, 122, 77, 0.42),
+    inset 0 0 90px rgba(31, 122, 77, 0.13);
+}
+.map-status-wash.tone-break,
+.map-status-wash.tone-nogps {
+  box-shadow:
+    inset 0 0 0 3px rgba(138, 144, 153, 0.4),
+    inset 0 0 70px rgba(138, 144, 153, 0.1);
+}
+
 /* ---------- Sidebar ---------- */
 .sidebar {
   border-right: 1px solid var(--line);
@@ -602,95 +725,15 @@ button.tier-chip.upgrade:hover {
   margin-top: 1px;
 }
 
-/* Pause stepper / ribbon */
-.stepper-head {
+/* Overview panel: the first thing shown after upload, before stepping. */
+.overview-panel {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
+  flex-direction: column;
+  gap: 10px;
 }
-
-.stepper-nav {
-  display: flex;
-  gap: 6px;
-}
-
-.icon-btn {
-  width: 30px;
-  height: 30px;
-  border-radius: var(--r-sm);
-  border: 1px solid var(--line-strong);
-  background: var(--panel);
-  display: grid;
-  place-items: center;
-  font-size: 15px;
-  color: var(--ink);
-}
-.icon-btn:disabled {
-  opacity: 0.4;
-}
-
-.ribbon {
-  display: flex;
-  gap: 4px;
-  margin-bottom: 16px;
-}
-
-.ribbon-node {
-  flex: 1;
-  height: 8px;
-  border-radius: 4px;
-  background: var(--line-strong);
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  opacity: 0.5;
-  transition:
-    opacity 0.15s,
-    transform 0.15s;
-}
-.ribbon-node.status-break {
-  background: var(--st-break);
-}
-.ribbon-node.status-issue {
-  background: var(--st-issue);
-}
-.ribbon-node.status-fixed {
-  background: var(--st-fixed);
-}
-.ribbon-node.status-nogps {
-  background: var(--st-nogps);
-}
-.ribbon-node.active {
-  opacity: 1;
-  box-shadow:
-    0 0 0 2px var(--panel),
-    0 0 0 3.5px rgba(20, 36, 28, 0.5);
-  transform: scaleY(1.15);
-}
-.ribbon-node:hover {
-  opacity: 0.85;
-}
-
-.ribbon-summary {
-  font-size: 12.5px;
-  margin: -8px 0 14px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.ribbon-summary.warn {
-  color: #b04a1e;
-}
-.ribbon-summary.calm {
-  color: var(--muted);
-}
-.ribbon-summary::before {
-  content: '';
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: currentColor;
+.overview-title {
+  font-size: 21px;
+  line-height: 1.1;
 }
 
 .pause-card .pause-title {

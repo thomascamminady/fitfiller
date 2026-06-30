@@ -86,7 +86,10 @@ describe('App', () => {
     await userEvent.upload(input, new File([new Uint8Array([1])], 'run.fit'));
 
     await waitFor(() => expect(screen.getByTestId('map')).toBeInTheDocument());
-    expect(screen.getByText('Pause 1')).toBeInTheDocument();
+    // Lands on the overview (whole file) before stepping into a gap.
+    expect(
+      screen.getByRole('button', { name: /review gaps/i }),
+    ).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: /new file/i }),
     ).toBeInTheDocument();
