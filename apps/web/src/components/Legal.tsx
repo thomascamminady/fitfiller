@@ -117,6 +117,10 @@ function Privacy() {
         <li>
           Elevation lookups (premium) send route coordinates to OpenTopoData.
         </li>
+        <li>
+          “Snap to path” (optional, per gap) sends the gap’s coordinates to a
+          BRouter routing server to follow real paths.
+        </li>
         <li>Payments are processed by [Stripe].</li>
       </ul>
       <h3>Legal basis</h3>
