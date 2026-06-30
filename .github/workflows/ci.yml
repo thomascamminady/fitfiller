@@ -1,10 +1,9 @@
 name: CI
 
-# Runs the full quality gate on every push and pull request: formatting,
-# types, tests, and a production build across the whole monorepo.
+# Quality gate for pull requests: formatting, types, tests, and a production
+# build. Pushes to main are covered by the Pages deploy workflow (which runs
+# the same gate before publishing).
 on:
-  push:
-    branches: [main]
   pull_request:
   workflow_dispatch:
 

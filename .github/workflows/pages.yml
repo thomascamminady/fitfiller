@@ -4,7 +4,7 @@ name: Deploy to GitHub Pages
 # entirely client-side, so this is the whole deployment.
 on:
   push:
-    branches: [gh-pages-static]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
