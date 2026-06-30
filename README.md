@@ -1,5 +1,8 @@
 # fitfiller
 
+[![CI](https://github.com/thomascamminady/fitfiller/actions/workflows/ci.yml/badge.svg)](https://github.com/thomascamminady/fitfiller/actions/workflows/ci.yml)
+[![Deploy](https://github.com/thomascamminady/fitfiller/actions/workflows/deploy.yml/badge.svg)](https://github.com/thomascamminady/fitfiller/actions/workflows/deploy.yml)
+
 Ever stopped your watch at a red light only to realize three kilometers later
 that you forgot to unpause and now your hard-earned kilometres are gone?
 Cry no more, `fitfiller` helps you fill in the gaps of your latest activity and
@@ -122,16 +125,48 @@ Coverage (optional): add `@vitest/coverage-v8` to a package, then
 | `ELEVATION_PROVIDER` | `none` \| `opentopodata` \| `open-elevation`   |
 | `CORS_ORIGIN`        | comma-separated allowed web origins            |
 
+## CI / CD
+
+Two GitHub Actions workflows, both in `.github/workflows`:
+
+- **CI** (`ci.yml`) runs on every push and pull request: it installs with a
+  frozen lockfile, then checks formatting, types, tests, and a production
+  build across the whole monorepo. Reproduce it locally with `pnpm ci`.
+- **Deploy** (`deploy.yml`) runs on every push to `main`: it builds the web
+  and API images and publishes them to the GitHub Container Registry
+  (`ghcr.io/<owner>/fitfiller-web` and `-api`), tagged `latest` and the commit
+  SHA. A second, optional job rolls those images out to a Hetzner host.
+
+### Enabling automatic rollout
+
+The deploy job stays skipped until you opt in. In the repo settings add:
+
+- Variable `DEPLOY_ENABLED` = `true`
+- Secrets `HETZNER_HOST`, `HETZNER_USER`, `HETZNER_SSH_KEY`, `HETZNER_APP_DIR`
+  (the directory on the host holding `docker-compose.prod.yml` + `Caddyfile`)
+
+On the host, place `docker-compose.prod.yml` and `Caddyfile`, point your
+domain's A/AAAA records at the server, and set the same env vars used below.
+Each push to `main` then pulls the new images and restarts the stack.
+
 ## Deploy (Hetzner, single host)
 
-`docker-compose.yml` builds both images and fronts them with Caddy (automatic
-TLS). On a fresh Hetzner box with Docker installed:
+`docker-compose.yml` builds both images locally and fronts them with Caddy
+(automatic TLS). On a fresh Hetzner box with Docker installed:
 
 ```bash
 # point your domain's A/AAAA records at the server, then edit:
 #   Caddyfile        -> your domain
 #   .env / compose   -> PUBLIC_ORIGIN, AUTH_PROVIDER, ELEVATION_*
 docker compose up -d --build
+```
+
+To run the published GHCR images instead of building, use
+`docker-compose.prod.yml` (this is what CD does):
+
+```bash
+docker compose -f docker-compose.prod.yml pull
+docker compose -f docker-compose.prod.yml up -d
 ```
 
 Caddy routes `/api/*` to the API and everything else to the static SPA.
