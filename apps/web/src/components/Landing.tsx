@@ -69,14 +69,10 @@ export function Landing({ onFile, busy }: Props) {
       <div className="landing-card">
         <TraceArt />
         <h1>
-          You forgot to unpause.
+          Forgot to unpause?
           <br />
-          <span className="accent">Let's mend the gap.</span>
+          <span className="accent">Let's fix your .fit file.</span>
         </h1>
-        <p className="lede">
-          Upload your .fit file, trace the stretch your watch missed, and
-          fitfiller rebuilds a clean file you can upload anywhere.
-        </p>
 
         <div
           className={`dropzone ${drag ? 'drag' : ''}`}

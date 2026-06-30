@@ -139,8 +139,7 @@ export function HrChart({
       <div className="hr-chart-head">
         <span className="eyebrow">{heading} · elapsed time</span>
         <span className="hr-legend">
-          <i className="dot trace" /> recorded
-          <i className="dot fill" /> filled
+          <i className="dot fill" /> rebuilt gap
         </span>
       </div>
       {panels.length === 0 ? (
@@ -215,8 +214,12 @@ export function HrChart({
                     </text>
                   </g>
                 ))}
-                {/* panel label */}
-                <text x={PAD.l} y={top - 2} className="hr-panel-label">
+                {/* panel label, coloured to match its line (acts as legend) */}
+                <text
+                  x={PAD.l}
+                  y={top - 2}
+                  className={`hr-panel-label series-${panel.def.key}`}
+                >
                   {panel.def.label.toUpperCase()}
                 </text>
 
@@ -224,7 +227,7 @@ export function HrChart({
                 {panel.def.area && (
                   <path
                     d={areaPath(recorded, valueOf, yOf, baseline)}
-                    className="hr-area"
+                    className={`hr-area series-${panel.def.key}`}
                   />
                 )}
                 {Object.entries(filledByPause).map(([id, recs]) => (
@@ -236,7 +239,7 @@ export function HrChart({
                 ))}
                 <path
                   d={linePath(recorded, valueOf, yOf)}
-                  className="hr-line trace"
+                  className={`hr-line trace series-${panel.def.key}`}
                 />
               </g>
             );

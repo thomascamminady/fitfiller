@@ -307,58 +307,53 @@ function PauseCard({
 
           {state.enabled && (
             <>
-              <div className="field" style={{ marginTop: 14 }}>
-                <label>
-                  Trace the route you ran{' '}
-                  <span className="sub">
-                    ({state.waypoints.length} point
-                    {state.waypoints.length === 1 ? '' : 's'} added)
-                  </span>
-                </label>
-                <p className="help-text">
-                  {drawing
-                    ? 'Click along the map from the blue point to the red point — one click per bend. Finish on the map when you’re done.'
-                    : 'Optional. We connect the blue and red points with a straight line — only draw if you didn’t run straight.'}
-                </p>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <button
-                    className={`btn btn-sm ${drawing ? 'btn-primary' : 'btn-route'}`}
-                    onClick={() => setDrawing(!drawing)}
-                  >
-                    {drawing ? '✓ Finish drawing' : '✎ Draw your route'}
-                  </button>
-                  <button
-                    className="btn btn-ghost btn-sm"
-                    onClick={onUndo}
-                    disabled={state.waypoints.length === 0}
-                  >
-                    Undo
-                  </button>
-                  <button
-                    className="btn btn-ghost btn-sm"
-                    onClick={onClear}
-                    disabled={state.waypoints.length === 0}
-                  >
-                    Clear
-                  </button>
-                </div>
-              </div>
-
-              <div className="toggle-row">
+              {/* 1 — the path across the gap */}
+              <p className="group-label">1 · Path across the gap</p>
+              <p className="help-text">
+                A straight line connects the blue and red points. If you didn’t
+                run straight, improve it:
+              </p>
+              <div className="toggle-row" style={{ borderTop: 'none' }}>
                 <span>
-                  Snap to path{' '}
-                  <span className="sub">follow roads &amp; trails</span>
+                  Snap to roads &amp; trails{' '}
+                  <span className="sub">auto-follow the path network</span>
                 </span>
                 <Switch
                   checked={state.snapToPath}
                   onChange={(v) => update({ snapToPath: v })}
                 />
               </div>
+              <button
+                className={`btn btn-sm draw-btn ${drawing ? 'btn-primary' : 'btn-route'}`}
+                onClick={() => setDrawing(!drawing)}
+              >
+                {drawing
+                  ? '✓ Done — click to finish'
+                  : '✎ Draw the route by hand'}
+              </button>
+              <p className="help-text">
+                {drawing
+                  ? 'Now click along the map, from the blue point to the red point — one click per bend.'
+                  : state.waypoints.length > 0
+                    ? `${state.waypoints.length} point${state.waypoints.length === 1 ? '' : 's'} drawn.`
+                    : 'Click the button, then trace your path on the map.'}
+              </p>
+              {state.waypoints.length > 0 && (
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button className="btn btn-ghost btn-sm" onClick={onUndo}>
+                    Undo
+                  </button>
+                  <button className="btn btn-ghost btn-sm" onClick={onClear}>
+                    Clear
+                  </button>
+                </div>
+              )}
 
-              <div className="field">
+              {/* 2 — timing */}
+              <p className="group-label">2 · Timing</p>
+              <div className="field" style={{ marginTop: 0 }}>
                 <label>
-                  Actual break{' '}
-                  <span className="sub">seconds standing still</span>
+                  Time standing still <span className="sub">seconds</span>
                 </label>
                 <input
                   className="input"
@@ -372,8 +367,14 @@ function PauseCard({
                     })
                   }
                 />
+                <p className="help-text">
+                  The rest of the {fmtDuration(pause.pausedSeconds)} pause
+                  becomes moving time along the route.
+                </p>
               </div>
 
+              {/* 3 — data written into the new records */}
+              <p className="group-label">3 · Data to write</p>
               <FillControl
                 label="Heart rate"
                 unit="bpm"
@@ -390,7 +391,6 @@ function PauseCard({
                 onMode={(v) => update({ cadence: v })}
                 onValue={(v) => update({ cadenceValue: v })}
               />
-
               <div className="toggle-row">
                 <span>
                   Real elevation{' '}
@@ -414,17 +414,18 @@ function PauseCard({
                 />
               </div>
 
-              <button
-                className="btn btn-ghost btn-sm"
-                style={{ marginTop: 14 }}
-                onClick={onPreview}
-                disabled={previewBusy}
-              >
-                {previewBusy ? 'Calculating…' : 'Preview filled segment'}
-              </button>
-
               {state.previewError && (
-                <div className="preview-result error">{state.previewError}</div>
+                <div className="preview-result error">
+                  {state.previewError}
+                  <button
+                    className="btn btn-ghost btn-sm"
+                    style={{ marginTop: 8 }}
+                    onClick={onPreview}
+                    disabled={previewBusy}
+                  >
+                    {previewBusy ? 'Calculating…' : 'Try again'}
+                  </button>
+                </div>
               )}
               {state.preview && !state.previewError && (
                 <div className="preview-result">
@@ -454,8 +455,9 @@ function PauseCard({
 
               {!state.preview && (
                 <p className="notice" style={{ marginTop: 10 }}>
-                  Moving time {fmtDuration(movingSeconds)} · trace a route, then
-                  preview to see pace.
+                  {previewBusy
+                    ? 'Calculating the filled segment…'
+                    : `Moving time ${fmtDuration(movingSeconds)} — the preview updates automatically.`}
                 </p>
               )}
             </>

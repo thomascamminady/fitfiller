@@ -9,7 +9,7 @@ export function Footer({ onOpen }: Props) {
   return (
     <footer className="footer">
       <span>
-        © {new Date().getFullYear()} fitfiller · open source · by{' '}
+        © {new Date().getFullYear()} fitfiller · by{' '}
         <a href={AUTHOR_URL} target="_blank" rel="noreferrer">
           Thomas Camminady
         </a>
