@@ -14,8 +14,9 @@ RUN pnpm install --frozen-lockfile
 COPY packages/core packages/core
 COPY apps/api apps/api
 RUN pnpm --filter @fitfiller/core build && pnpm --filter @fitfiller/api build
-# Prune to production deps.
-RUN pnpm --filter @fitfiller/api --prod deploy /out
+# Prune to production deps. --legacy: pnpm v10+ otherwise refuses to deploy a
+# workspace that isn't using injected dependencies.
+RUN pnpm --filter @fitfiller/api --prod deploy --legacy /out
 
 FROM base AS runtime
 WORKDIR /app
