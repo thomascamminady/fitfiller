@@ -8,9 +8,10 @@ interface Props {
 }
 
 /**
- * Placeholder legal text. The bracketed fields MUST be completed by the
- * operator before going live — German law (TMG §5) requires a real Impressum
- * and the GDPR requires an accurate privacy notice.
+ * Operator legal text. Personal/contact details are filled in; any remaining
+ * bracketed fields (e.g. the payment processor) must be completed before that
+ * feature goes live. German law (§ 5 DDG) requires a real Impressum and the
+ * GDPR requires an accurate privacy notice.
  */
 export function Legal({ page, onClose }: Props) {
   const ref = useDismissable<HTMLDivElement>(onClose);
@@ -37,25 +38,29 @@ function Impressum() {
   return (
     <>
       <h2>Impressum</h2>
-      <p>Angaben gemäß § 5 TMG / Information according to § 5 TMG.</p>
+      <p>
+        Angaben gemäß § 5 DDG / Information according to § 5 DDG
+        (Digitale-Dienste-Gesetz).
+      </p>
       <h3>Diensteanbieter</h3>
       <p>
-        [Full legal name]
+        Dr. Thomas Camminady
         <br />
-        [Street and number]
         <br />
-        [Postal code, City]
         <br />
-        [Country]
+        Deutschland
       </p>
       <h3>Kontakt</h3>
       <p>
-        E-Mail: [contact email]
-        <br />
-        Telefon: [phone, optional]
+        E-Mail:{' '}
+        <a href="mailto:fitfiller@camminady.dev">fitfiller@camminady.dev</a>
       </p>
       <h3>Verantwortlich i. S. d. § 18 Abs. 2 MStV</h3>
-      <p>[Responsible person name and address]</p>
+      <p>
+        Dr. Thomas Camminady
+        <br />
+        <br />
+      </p>
       <h3>EU-Streitschlichtung</h3>
       <p>
         Die Europäische Kommission stellt eine Plattform zur
@@ -80,7 +85,12 @@ function Privacy() {
         bracketed fields before publishing.
       </p>
       <h3>Controller</h3>
-      <p>[Legal name and contact — see Impressum]</p>
+      <p>
+        Dr. Thomas Camminady
+        <br />
+        <br />
+        <a href="mailto:fitfiller@camminady.dev">fitfiller@camminady.dev</a>
+      </p>
       <h3>What we process</h3>
       <ul>
         <li>
@@ -101,12 +111,11 @@ function Privacy() {
       <h3>Third parties</h3>
       <ul>
         <li>
-          Map tiles are served by [map tile provider]; your IP is visible to
-          them.
+          Map tiles are served by OpenFreeMap (OpenMapTiles; map data ©
+          OpenStreetMap contributors); your IP is visible to them.
         </li>
         <li>
-          Elevation lookups (premium) send route coordinates to [elevation
-          provider].
+          Elevation lookups (premium) send route coordinates to OpenTopoData.
         </li>
         <li>Payments are processed by [Stripe].</li>
       </ul>
@@ -120,7 +129,8 @@ function Privacy() {
       <p>
         You may request access, rectification, erasure, restriction, and data
         portability, and you may lodge a complaint with a supervisory authority.
-        Contact: [data protection contact email].
+        Contact:{' '}
+        <a href="mailto:fitfiller@camminady.dev">fitfiller@camminady.dev</a>.
       </p>
     </>
   );
@@ -145,7 +155,10 @@ function Licenses() {
           <strong>React</strong> (MIT), <strong>Fastify</strong> (MIT),{' '}
           <strong>Vite</strong> (MIT), <strong>Zod</strong> (MIT).
         </li>
-        <li>Map tiles &amp; styles: [tile provider attribution].</li>
+        <li>
+          Map tiles &amp; styles: OpenFreeMap © OpenMapTiles; map data ©
+          OpenStreetMap contributors.
+        </li>
       </ul>
       <p className="notice">
         Full dependency licenses are generated from each package's LICENSE file

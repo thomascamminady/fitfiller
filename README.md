@@ -174,9 +174,10 @@ Caddy routes `/api/*` to the API and everything else to the static SPA.
 ## Legal
 
 Impressum, GDPR privacy notice and license attributions live in
-`apps/web/src/components/Legal.tsx`. **The bracketed `[...]` fields are
-placeholders and must be completed before going live** — a real Impressum is
-legally required in Germany (TMG §5).
+`apps/web/src/components/Legal.tsx`. The operator's Impressum/contact details
+are filled in (a real Impressum is legally required in Germany under § 5 DDG).
+**Any remaining bracketed `[...]` fields — currently the payment processor —
+must be completed before that feature goes live.**
 
 ## License & attribution
 
