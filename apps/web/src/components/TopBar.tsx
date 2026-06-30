@@ -72,24 +72,16 @@ export function TopBar({ onReset, hasActivity }: Props) {
             New file
           </button>
         )}
-        <a
-          className="byline"
-          href={AUTHOR_URL}
-          target="_blank"
-          rel="noreferrer"
-        >
-          by Thomas Camminady
-        </a>
-        <a
-          className="icon-link"
-          href={GITHUB_URL}
-          target="_blank"
-          rel="noreferrer"
-          aria-label="Source on GitHub"
-        >
-          <GithubMark />
-        </a>
       </div>
+      <a
+        className="corner-link"
+        href={GITHUB_URL}
+        target="_blank"
+        rel="noreferrer"
+        aria-label="Source on GitHub"
+      >
+        <GithubMark />
+      </a>
     </header>
   );
 }

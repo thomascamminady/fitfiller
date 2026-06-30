@@ -94,8 +94,11 @@ function Privacy() {
           browser. It is never sent to us and leaves your device only if you use
           one of the optional services below.
         </li>
+        <li>We use no accounts, no cookies and no cross-site tracking.</li>
         <li>
-          We operate no server-side logging, accounts, cookies or analytics.
+          <strong>Anonymous, aggregate page views</strong> are counted with
+          GoatCounter — no cookies and no personal data; your IP address is used
+          only briefly to derive a country and is then discarded.
         </li>
       </ul>
       <h3>Optional third-party services</h3>

@@ -32,11 +32,11 @@ beforeEach(() => {
 });
 
 describe('App', () => {
-  it('shows the landing page with author attribution', async () => {
+  it('shows the landing page with author attribution in the footer', async () => {
     render(<App />);
     expect(screen.getByText(/let's mend the gap/i)).toBeInTheDocument();
     expect(
-      screen.getByRole('link', { name: /by thomas camminady/i }),
+      screen.getByRole('link', { name: /thomas camminady/i }),
     ).toBeInTheDocument();
   });
 

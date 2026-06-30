@@ -3,9 +3,10 @@
      the way. Colour is reserved for information only — the map's blue/red
      endpoints and the break/issue/fixed status trio. Nothing is coloured for
      decoration. */
-  --canvas: #f4f5f6;
+  /* One flat white surface everywhere — no contrast between bars and center. */
+  --canvas: #ffffff;
   --panel: #ffffff;
-  --panel-2: #f7f8f9;
+  --panel-2: #ffffff;
   --ink: #181a1f; /* near-black graphite — the primary/brand colour */
   --ink-soft: #43464d;
   --muted: #797d85;
@@ -123,6 +124,7 @@ a {
   align-items: center;
   justify-content: space-between;
   padding: 9px 18px;
+  padding-right: 56px; /* clear the corner triangle */
   background: var(--panel);
   border-bottom: 1px solid var(--line);
   position: sticky;
@@ -154,31 +156,29 @@ a {
   gap: 14px;
 }
 
-.byline {
-  font-size: 13px;
-  color: var(--muted);
-  text-decoration: none;
+/* GitHub link as a triangle in the top-right corner of the page. */
+.corner-link {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 40;
+  width: 54px;
+  height: 54px;
+  background: var(--ink);
+  clip-path: polygon(100% 0, 0 0, 100% 100%);
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  color: #fff;
+  transition: background 0.15s ease;
 }
-.byline:hover {
-  color: var(--ink);
-  text-decoration: underline;
-  text-underline-offset: 2px;
+.corner-link:hover {
+  background: #000;
 }
-
-.icon-link {
-  display: grid;
-  place-items: center;
-  width: 32px;
-  height: 32px;
-  border-radius: var(--r-sm);
-  color: var(--muted);
-  transition:
-    color 0.15s ease,
-    background 0.15s ease;
-}
-.icon-link:hover {
-  color: var(--ink);
-  background: var(--panel-2);
+.corner-link svg {
+  width: 16px;
+  height: 16px;
+  margin: 7px 7px 0 0;
 }
 
 /* ---------- Buttons ---------- */
@@ -893,13 +893,16 @@ a {
   flex-wrap: wrap;
 }
 
+.footer a,
 .footer button {
   background: none;
   border: none;
   color: var(--muted);
   font-size: 13px;
   padding: 0;
+  text-decoration: none;
 }
+.footer a:hover,
 .footer button:hover {
   color: var(--ink);
 }

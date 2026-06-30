@@ -67,7 +67,6 @@ export function Landing({ onFile, busy }: Props) {
   return (
     <main className="landing">
       <div className="landing-card">
-        <p className="eyebrow">FIT repair · for the run you actually ran</p>
         <TraceArt />
         <h1>
           You forgot to unpause.
