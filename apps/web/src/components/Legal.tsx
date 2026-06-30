@@ -46,21 +46,17 @@ function Impressum() {
       <p>
         Dr. Thomas Camminady
         <br />
-        <br />
-        <br />
         Deutschland
       </p>
       <h3>Kontakt</h3>
       <p>
         E-Mail:{' '}
         <a href="mailto:fitfiller@camminady.dev">fitfiller@camminady.dev</a>
+        <br />
+        Postanschrift auf Anfrage.
       </p>
       <h3>Verantwortlich i. S. d. § 18 Abs. 2 MStV</h3>
-      <p>
-        Dr. Thomas Camminady
-        <br />
-        <br />
-      </p>
+      <p>Dr. Thomas Camminady</p>
       <h3>EU-Streitschlichtung</h3>
       <p>
         Die Europäische Kommission stellt eine Plattform zur
@@ -87,8 +83,7 @@ function Privacy() {
       </p>
       <h3>Controller</h3>
       <p>
-        Dr. Thomas Camminady
-        <br />
+        Dr. Thomas Camminady, Deutschland
         <br />
         <a href="mailto:fitfiller@camminady.dev">fitfiller@camminady.dev</a>
       </p>
