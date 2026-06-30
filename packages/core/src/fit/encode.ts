@@ -1,4 +1,5 @@
 import { Encoder, Profile } from '@garmin/fitsdk';
+import type { FieldDescription } from '@garmin/fitsdk';
 import type { TrackPoint } from '../domain/types.js';
 import type { GapFill } from '../gap/fill.js';
 import type { RawMessage } from './decode.js';
@@ -54,8 +55,14 @@ function droppedEventTimes(fills: GapFill[]): Set<number> {
  * timestamp (untimestamped messages such as `file_id` come first), which is a
  * valid FIT layout that activity platforms accept.
  */
-export function encodeFit(raw: RawMessage[], fills: GapFill[]): Uint8Array {
-  const encoder = new Encoder();
+export function encodeFit(
+  raw: RawMessage[],
+  fills: GapFill[],
+  fieldDescriptions: Record<number, FieldDescription> = {},
+): Uint8Array {
+  // Re-register developer field definitions so messages carrying developer
+  // fields (Wahoo, TrainingPeaks, …) can be encoded instead of throwing.
+  const encoder = new Encoder({ fieldDescriptions });
   const dropTimes = droppedEventTimes(fills);
 
   // Distance added to any record occurring at or after a fill's resume time.
@@ -72,6 +79,16 @@ export function encodeFit(raw: RawMessage[], fills: GapFill[]): Uint8Array {
     mesg: Record<string, unknown>;
     time: number | null;
     order: number;
+  }
+
+  // The last real record time bounds every gap (a gap's resume point is a real
+  // record), so it's the reliable end of the session window.
+  let lastRecordTime = -Infinity;
+  for (const { mesgNum, mesg } of raw) {
+    if (mesgNum === RECORD) {
+      const t = timeOf(mesg);
+      if (t !== null && t > lastRecordTime) lastRecordTime = t;
+    }
   }
 
   const untimed: Entry[] = [];
@@ -98,8 +115,12 @@ export function encodeFit(raw: RawMessage[], fills: GapFill[]): Uint8Array {
       if (shift !== 0 && typeof clone.distance === 'number') {
         clone.distance = clone.distance + shift;
       }
-    } else if (mesgNum === SESSION || mesgNum === LAP) {
-      adjustTotals(clone, fills);
+    } else if (mesgNum === SESSION) {
+      // A session spans the whole activity → bound by the last record.
+      adjustTotals(clone, fills, lastRecordTime);
+    } else if (mesgNum === LAP) {
+      // A lap only owns the gaps inside its own window.
+      adjustTotals(clone, fills, null);
     }
 
     const entry: Entry = { mesgNum, mesg: clone, time, order: order++ };
@@ -128,18 +149,41 @@ export function encodeFit(raw: RawMessage[], fills: GapFill[]): Uint8Array {
   return encoder.close();
 }
 
-/** Add gap distance/time to a session or lap whose window contains the gap. */
-function adjustTotals(mesg: Record<string, unknown>, fills: GapFill[]): void {
-  const end = mesg.timestamp instanceof Date ? mesg.timestamp.getTime() : null;
+/**
+ * Add gap distance/time to a session or lap whose window contains the gap.
+ *
+ * The window end can't trust the message `timestamp` (some devices set
+ * `session.timestamp` to the start time). We take the latest of: the timestamp,
+ * `start + max(elapsed, timer)`, and — for sessions — the activity's last
+ * record time (`hardEnd`), which reliably bounds every gap.
+ */
+function adjustTotals(
+  mesg: Record<string, unknown>,
+  fills: GapFill[],
+  hardEnd: number | null,
+): void {
   const start =
     mesg.startTime instanceof Date ? mesg.startTime.getTime() : null;
-  if (end === null) return;
+  const stampEnd =
+    mesg.timestamp instanceof Date ? mesg.timestamp.getTime() : null;
+
+  let derivedEnd: number | null = null;
+  if (start !== null) {
+    const elapsed = typeof mesg.totalElapsedTime === 'number' ? mesg.totalElapsedTime : 0;
+    const timer = typeof mesg.totalTimerTime === 'number' ? mesg.totalTimerTime : 0;
+    derivedEnd = start + Math.max(elapsed, timer) * 1000;
+  }
+  const end = Math.max(
+    stampEnd ?? -Infinity,
+    derivedEnd ?? -Infinity,
+    hardEnd ?? -Infinity,
+  );
+  if (!Number.isFinite(end)) return;
+
   let addDistance = 0;
   let addTime = 0;
   for (const f of fills) {
-    const within =
-      f.startTime <= end && (start === null || f.startTime >= start);
-    if (within) {
+    if (f.startTime <= end && (start === null || f.startTime >= start)) {
       addDistance += f.addedDistanceMeters;
       addTime += f.movingSeconds;
     }

@@ -15,6 +15,8 @@
   --route-tint: #e7f1ea;
   --gap: #e8642c; /* the problem: the paused gap */
   --gap-tint: #fdece3;
+  --paused: #2563eb; /* where the watch paused — blue (matches the map) */
+  --resumed: #dc2626; /* where it resumed — red (matches the map) */
   --brass: #a87d28; /* premium */
   --brass-tint: #f6efdc;
 

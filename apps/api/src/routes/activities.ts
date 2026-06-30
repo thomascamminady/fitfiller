@@ -127,7 +127,7 @@ export function registerActivityRoutes(
           parsed.data.fills,
           req.auth,
         );
-        bytes = encodeFit(entry.decoded.raw, fills);
+        bytes = encodeFit(entry.decoded.raw, fills, entry.decoded.fieldDescriptions);
       } catch (err) {
         return handleFillError(err, reply);
       }
@@ -160,7 +160,7 @@ export function registerActivityRoutes(
           parsed.data.fills,
           req.auth,
         );
-        const bytes = encodeFit(entry.decoded.raw, fills);
+        const bytes = encodeFit(entry.decoded.raw, fills, entry.decoded.fieldDescriptions);
 
         const original = summarize(entry.decoded.activity);
         let ok = true;

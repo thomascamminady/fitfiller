@@ -1,5 +1,10 @@
 import { Decoder, Stream, Profile } from '@garmin/fitsdk';
-import type { Mesg } from '@garmin/fitsdk';
+import type {
+  Mesg,
+  FieldDescription,
+  DeveloperDataIdMesg,
+  FieldDescriptionMesg,
+} from '@garmin/fitsdk';
 import type {
   ParsedActivity,
   TrackPoint,
@@ -25,6 +30,13 @@ export interface RawMessage {
 export interface DecodedFit {
   raw: RawMessage[];
   activity: ParsedActivity;
+  /**
+   * Developer (application-defined) field descriptions, keyed by developer
+   * field key. Captured so the encoder can re-register them and round-trip
+   * files from apps like Wahoo or TrainingPeaks without dropping/corrupting
+   * their custom fields.
+   */
+  fieldDescriptions: Record<number, FieldDescription>;
 }
 
 const RECORD = Profile.MesgNum.RECORD as number;
@@ -68,8 +80,16 @@ export function decodeFit(bytes: Uint8Array): DecodedFit {
   const raw: RawMessage[] = [];
   const points: TrackPoint[] = [];
   const events: TimerEvent[] = [];
+  const fieldDescriptions: Record<number, FieldDescription> = {};
 
   const { messages, errors } = decoder.read({
+    fieldDescriptionListener: (
+      key: number,
+      developerDataIdMesg: DeveloperDataIdMesg,
+      fieldDescriptionMesg: FieldDescriptionMesg,
+    ) => {
+      fieldDescriptions[key] = { developerDataIdMesg, fieldDescriptionMesg };
+    },
     mesgListener: (mesgNum: number, message: Mesg) => {
       const mesg = message as Record<string, unknown>;
       raw.push({ mesgNum, mesg });
@@ -129,5 +149,5 @@ export function decodeFit(bytes: Uint8Array): DecodedFit {
     laps,
   };
 
-  return { raw, activity };
+  return { raw, activity, fieldDescriptions };
 }

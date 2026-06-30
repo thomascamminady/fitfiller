@@ -128,6 +128,52 @@ export function buildFit(opts: BuildFitOptions): Uint8Array {
   return enc.close();
 }
 
+/**
+ * A FIT file carrying an application-defined (developer) field on a record —
+ * the shape produced by apps like Wahoo/TrainingPeaks that previously broke
+ * re-encoding.
+ */
+export function buildFitWithDeveloperField(): Uint8Array {
+  const enc = new Encoder();
+  enc.writeMesg({
+    mesgNum: M.FILE_ID,
+    type: 'activity',
+    timeCreated: new Date(BASE),
+    manufacturer: 'development',
+    product: 0,
+    serialNumber: 1,
+  } as never);
+  const devId = {
+    developerDataIndex: 0,
+    applicationId: Array.from({ length: 16 }, (_, i) => i),
+  };
+  const fieldDesc = {
+    developerDataIndex: 0,
+    fieldDefinitionNumber: 0,
+    fitBaseTypeId: 1, // uint8
+    fieldName: 'doughnuts',
+    units: 'count',
+  };
+  enc.addDeveloperField(
+    0,
+    { mesgNum: M.DEVELOPER_DATA_ID, ...devId } as never,
+    { mesgNum: M.FIELD_DESCRIPTION, ...fieldDesc } as never,
+  );
+  enc.writeMesg({ mesgNum: M.DEVELOPER_DATA_ID, ...devId } as never);
+  enc.writeMesg({ mesgNum: M.FIELD_DESCRIPTION, ...fieldDesc } as never);
+  for (let s = 0; s <= 3; s++) {
+    enc.writeMesg({
+      mesgNum: M.RECORD,
+      timestamp: new Date(BASE + s * 1000),
+      positionLat: degreesToSemicircles(47),
+      positionLong: degreesToSemicircles(8 + s * 1e-4),
+      distance: s * 3,
+      developerFields: { 0: 5 + s },
+    } as never);
+  }
+  return enc.close();
+}
+
 /** A straight eastward run with a single forgotten pause in the middle. */
 export function runWithPause(): Uint8Array {
   const records: SimRecord[] = [];

@@ -9,6 +9,13 @@ interface Props {
 function TraceArt() {
   return (
     <svg className="trace-art" viewBox="0 0 460 120" fill="none" aria-hidden="true">
+      <defs>
+        {/* The mend: blue (paused) bleeding into red (resumed), echoing the map. */}
+        <linearGradient id="mend" x1="195" y1="72" x2="300" y2="28" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="var(--paused)" />
+          <stop offset="1" stopColor="var(--resumed)" />
+        </linearGradient>
+      </defs>
       <path
         d="M8 96 C 60 96, 70 40, 120 38 C 150 37, 165 70, 195 72"
         stroke="var(--route)"
@@ -17,7 +24,7 @@ function TraceArt() {
       />
       <path
         d="M195 72 C 235 75, 250 30, 300 28"
-        stroke="var(--gap)"
+        stroke="url(#mend)"
         strokeWidth="3"
         strokeLinecap="round"
         strokeDasharray="2 9"
@@ -28,8 +35,8 @@ function TraceArt() {
         strokeWidth="3"
         strokeLinecap="round"
       />
-      <circle cx="195" cy="72" r="5.5" fill="var(--gap)" />
-      <circle cx="300" cy="28" r="5.5" fill="var(--gap)" />
+      <circle cx="195" cy="72" r="5.5" fill="var(--paused)" />
+      <circle cx="300" cy="28" r="5.5" fill="var(--resumed)" />
       <circle cx="8" cy="96" r="4" fill="var(--route)" />
       <circle cx="452" cy="78" r="4" fill="var(--route)" />
     </svg>

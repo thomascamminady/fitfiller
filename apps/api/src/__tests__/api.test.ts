@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import type { FastifyInstance } from 'fastify';
 import { buildApp } from '../app.js';
 import { loadConfig } from '../config.js';
-import { sampleFit, multipart, fillRequestFor } from './fixtures.js';
+import { sampleFit, devFieldFit, multipart, fillRequestFor } from './fixtures.js';
 
 function makeApp(env: Record<string, string> = {}) {
   return buildApp(
@@ -192,6 +192,39 @@ describe('API — fill & export', () => {
     });
     expect(res.statusCode).toBe(400);
   });
+
+  it('rejects a fill route with out-of-range coordinates', async () => {
+    const upload = (await uploadSample(app)).json();
+    const res = await app.inject({
+      method: 'POST',
+      url: `/api/activities/${upload.id}/preview-fill`,
+      payload: {
+        pauseId: upload.activity.pauses[0].id,
+        route: [{ lat: 999, lon: 8 }, { lat: 47, lon: 8 }],
+        config: { actualBreakSeconds: 0 },
+      },
+    });
+    expect(res.statusCode).toBe(400);
+  });
+
+  it('exports a file with developer fields without corrupting it', async () => {
+    const mp = multipart('file', 'wahoo.fit', devFieldFit());
+    const upload = (await app.inject({
+      method: 'POST',
+      url: '/api/activities',
+      headers: mp.headers,
+      payload: mp.payload,
+    })).json();
+    expect(upload.activity.pauses).toHaveLength(1);
+    const req = fillRequestFor(upload.activity.pauses[0]);
+    const res = await app.inject({
+      method: 'POST',
+      url: `/api/activities/${upload.id}/export-summary`,
+      payload: { fills: [req] },
+    });
+    expect(res.statusCode).toBe(200);
+    expect(res.json().ok).toBe(true);
+  });
 });
 
 describe('API — premium gating', () => {
@@ -207,6 +240,20 @@ describe('API — premium gating', () => {
     });
     expect(res.statusCode).toBe(402);
     expect(res.json().code).toBe('premium_required');
+    await app.close();
+  });
+
+  it('blocks premium features on export-summary too (402)', async () => {
+    const app = await makeApp({ DEV_FORCE_PREMIUM: 'false' });
+    await app.ready();
+    const upload = (await uploadSample(app)).json();
+    const req = fillRequestFor(upload.activity.pauses[0]);
+    const res = await app.inject({
+      method: 'POST',
+      url: `/api/activities/${upload.id}/export-summary`,
+      payload: { fills: [{ ...req, config: { ...req.config, gradeAdjust: true } }] },
+    });
+    expect(res.statusCode).toBe(402);
     await app.close();
   });
 

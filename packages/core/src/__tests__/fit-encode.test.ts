@@ -67,6 +67,30 @@ describe('encodeFit — with a fill', () => {
     );
   });
 
+  it('updates session totals even when session.timestamp equals startTime', () => {
+    // Some devices set session.timestamp to the *start* time. Totals must still
+    // grow, derived from elapsed/timer time rather than the bogus timestamp.
+    const records = [];
+    for (let s = 0; s <= 5; s++) records.push({ sec: s, lat: 47, lon: 8 + s * 1e-4, dist: s * 5 });
+    for (let s = 0; s <= 5; s++) records.push({ sec: 70 + s, lat: 47, lon: 8.006 + s * 1e-4, dist: 25 + s * 5 });
+    const bytes = buildFit({
+      records,
+      events: [
+        { sec: 5, type: 'stop' },
+        { sec: 70, type: 'start' },
+      ],
+      // endSec = 0 makes session.timestamp == startTime (the quirk).
+      session: { startSec: 0, endSec: 0, totalDistance: 50, totalTimerTime: 12 },
+    });
+    const dec = decodeFit(bytes);
+    const pause = dec.activity.pauses[0]!;
+    const fill = buildGapFill({ pause, route: straightRoute(pause), config: { actualBreakSeconds: 5 } });
+    const filled = decodeFit(encodeFit(dec.raw, [fill]));
+
+    expect(filled.activity.summary.totalDistanceMeters!).toBeGreaterThan(50);
+    expect(filled.activity.summary.totalTimerSeconds!).toBeGreaterThan(12);
+  });
+
   it('accumulates distance shift across two filled gaps', () => {
     // Build a run with two forgotten pauses.
     const records = [];
