@@ -25,7 +25,7 @@ env: ## Create apps/api/.env from the example if missing
 core: ## Build the core package (needed before the API can import it)
 	$(PNPM) --filter @fitfiller/core build
 
-dev: install env core ## Run the full stack (API + web) with live reload
+dev: stop install env core ## Run the full stack (API + web) with live reload
 	@echo "API → http://localhost:3001   web → http://localhost:5173"
 	$(PNPM) dev
 
@@ -59,10 +59,15 @@ sample: core ## Generate a sample .fit (with a forgotten pause) at /tmp/sample-r
 	@$(PNPM) --filter @fitfiller/core exec node -e "$$SAMPLE_SCRIPT"
 	@echo "wrote /tmp/sample-run.fit — upload it at http://localhost:5173"
 
-stop: ## Stop stray dev servers (vite / tsx watch)
-	@pkill -f "tsx watch" 2>/dev/null || true
-	@pkill -f "vite" 2>/dev/null || true
-	@echo "stopped dev servers"
+stop: ## Stop stray dev servers (API + web) and free their ports
+	@pkill -f "turbo run dev" 2>/dev/null || true; \
+	pkill -f "tsx.*watch.*src/server.ts" 2>/dev/null || true; \
+	sleep 1; \
+	for p in 3001 5173; do \
+		pids=$$(lsof -ti tcp:$$p 2>/dev/null || true); \
+		if [ -n "$$pids" ]; then kill $$pids 2>/dev/null || true; fi; \
+	done; \
+	echo "stopped dev servers (freed :3001 and :5173)"
 
 clean: ## Remove build output and caches
 	@rm -rf packages/*/dist apps/*/dist .turbo packages/*/.turbo apps/*/.turbo
