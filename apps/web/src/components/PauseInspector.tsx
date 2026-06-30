@@ -1,10 +1,4 @@
-import type {
-  AuthContext,
-  FillMode,
-  GapFill,
-  PauseSegment,
-  ParsedActivity,
-} from '../types';
+import type { FillMode, GapFill, PauseSegment, ParsedActivity } from '../types';
 import { fmtDistance, fmtDuration, fmtPace, fmtSport } from '../format';
 import { pauseStatus, pauseHasGps, type PauseStatus } from '../pauseStatus';
 
@@ -30,7 +24,6 @@ interface Props {
   setActiveIndex: (i: number) => void;
   fills: Record<string, PauseFillState>;
   updateFill: (pauseId: string, patch: Partial<PauseFillState>) => void;
-  auth: AuthContext | null;
   drawing: boolean;
   setDrawing: (b: boolean) => void;
   onUndoWaypoint: (pauseId: string) => void;
@@ -44,19 +37,17 @@ interface Props {
 function Switch({
   checked,
   onChange,
-  premium,
   disabled,
 }: {
   checked: boolean;
   onChange: (v: boolean) => void;
-  premium?: boolean;
   disabled?: boolean;
 }) {
   return (
     <button
       role="switch"
       aria-checked={checked}
-      className={`switch ${premium ? 'premium' : ''}`}
+      className="switch"
       disabled={disabled}
       onClick={() => onChange(!checked)}
     />
@@ -113,7 +104,6 @@ export function PauseInspector(props: Props) {
     setActiveIndex,
     fills,
     updateFill,
-    auth,
     drawing,
     setDrawing,
     onUndoWaypoint,
@@ -126,7 +116,6 @@ export function PauseInspector(props: Props) {
 
   const { summary, pauses } = activity;
   const pause: PauseSegment | undefined = pauses[activeIndex];
-  const isPremium = auth?.isPremium ?? false;
   const enabledCount = Object.values(fills).filter((f) => f.enabled).length;
 
   const statuses = pauses.map((p) =>
@@ -193,7 +182,6 @@ export function PauseInspector(props: Props) {
               pause={pause}
               state={fills[pause.id]!}
               update={(patch) => updateFill(pause.id, patch)}
-              isPremium={isPremium}
               drawing={drawing}
               setDrawing={setDrawing}
               onUndo={() => onUndoWaypoint(pause.id)}
@@ -266,7 +254,6 @@ function PauseCard({
   pause,
   state,
   update,
-  isPremium,
   drawing,
   setDrawing,
   onUndo,
@@ -277,7 +264,6 @@ function PauseCard({
   pause: PauseSegment;
   state: PauseFillState;
   update: (patch: Partial<PauseFillState>) => void;
-  isPremium: boolean;
   drawing: boolean;
   setDrawing: (b: boolean) => void;
   onUndo: () => void;
@@ -407,12 +393,10 @@ function PauseCard({
 
               <div className="toggle-row">
                 <span>
-                  Real elevation
-                  <span className="premium-tag">PREMIUM</span>
+                  Real elevation{' '}
+                  <span className="sub">sample terrain along the route</span>
                 </span>
                 <Switch
-                  premium
-                  disabled={!isPremium}
                   checked={state.elevation === 'route'}
                   onChange={(v) =>
                     update({ elevation: v ? 'route' : 'linear' })
@@ -421,12 +405,10 @@ function PauseCard({
               </div>
               <div className="toggle-row">
                 <span>
-                  Grade-adjusted pace
-                  <span className="premium-tag">PREMIUM</span>
+                  Grade-adjusted pace{' '}
+                  <span className="sub">vary speed by slope</span>
                 </span>
                 <Switch
-                  premium
-                  disabled={!isPremium}
                   checked={state.gradeAdjust}
                   onChange={(v) => update({ gradeAdjust: v })}
                 />

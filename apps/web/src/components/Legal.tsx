@@ -81,8 +81,9 @@ function Privacy() {
     <>
       <h2>Privacy Notice (GDPR)</h2>
       <p>
-        This notice explains how fitfiller handles your data. Complete the
-        bracketed fields before publishing.
+        fitfiller is a free, open-source tool that runs entirely in your
+        browser. There is no server and no account: your .fit file is processed
+        on your device and never uploaded to us.
       </p>
       <h3>Controller</h3>
       <p>
@@ -94,40 +95,37 @@ function Privacy() {
       <h3>What we process</h3>
       <ul>
         <li>
-          <strong>Uploaded .fit files.</strong> Parsed in memory to detect
-          pauses and rebuild the track. Held only for the length of your editing
-          session (auto-expires within one hour) and never shared.
+          <strong>Your .fit file</strong> is parsed and rebuilt locally in the
+          browser. It is never sent to us and leaves your device only if you use
+          one of the optional services below.
         </li>
         <li>
-          <strong>Route coordinates</strong> you draw, sent to the API to
-          compute the filled segment.
-        </li>
-        <li>
-          <strong>Account &amp; billing data</strong> (premium only): handled by
-          our payment processor [Stripe]; we store only the identifiers needed
-          to unlock premium features.
+          We operate no server-side logging, accounts, cookies or analytics.
         </li>
       </ul>
-      <h3>Third parties</h3>
+      <h3>Optional third-party services</h3>
+      <p>
+        These are only contacted when you use the relevant feature, and only the
+        coordinates needed for that feature are sent — never the whole file.
+      </p>
       <ul>
         <li>
           Map tiles are served by OpenFreeMap (OpenMapTiles; map data ©
           OpenStreetMap contributors); your IP is visible to them.
         </li>
         <li>
-          Elevation lookups (premium) send route coordinates to OpenTopoData.
+          “Real elevation” sends the route’s coordinates to Open-Meteo to look
+          up terrain height.
         </li>
         <li>
-          “Snap to path” (optional, per gap) sends the gap’s coordinates to a
-          BRouter routing server to follow real paths.
+          “Snap to path” sends the gap’s coordinates to a BRouter routing server
+          to follow real paths.
         </li>
-        <li>Payments are processed by [Stripe].</li>
       </ul>
       <h3>Legal basis</h3>
       <p>
-        Processing of uploaded files is based on Art. 6(1)(b) GDPR (performing
-        the service you requested). Billing data is processed to fulfil the
-        premium contract.
+        Where an optional service sends coordinates, that processing is based on
+        Art. 6(1)(b) GDPR — performing the action you requested.
       </p>
       <h3>Your rights</h3>
       <p>

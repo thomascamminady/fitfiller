@@ -14,12 +14,10 @@ vi.mock('./api', async () => {
   return {
     ...actual,
     api: {
-      me: vi.fn(),
       upload: vi.fn(),
       previewFill: vi.fn(),
       exportSummary: vi.fn(),
       export: vi.fn(),
-      subscribe: vi.fn(),
     },
   };
 });
@@ -31,34 +29,14 @@ const mockedApi = vi.mocked(api);
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mockedApi.me.mockResolvedValue({
-    userId: 'u',
-    isPremium: false,
-    tier: 'free',
-  });
 });
 
 describe('App', () => {
-  it('shows the landing page with an upgrade affordance for free users', async () => {
+  it('shows the landing page with author attribution', async () => {
     render(<App />);
     expect(screen.getByText(/let's mend the gap/i)).toBeInTheDocument();
-    await waitFor(() =>
-      expect(
-        screen.getByRole('button', { name: /go premium/i }),
-      ).toBeInTheDocument(),
-    );
-  });
-
-  it('opens the premium modal from the upgrade button', async () => {
-    render(<App />);
-    await waitFor(() =>
-      expect(
-        screen.getByRole('button', { name: /go premium/i }),
-      ).toBeInTheDocument(),
-    );
-    await userEvent.click(screen.getByRole('button', { name: /go premium/i }));
     expect(
-      screen.getByRole('heading', { name: /real terrain/i }),
+      screen.getByRole('link', { name: /by thomas camminady/i }),
     ).toBeInTheDocument();
   });
 

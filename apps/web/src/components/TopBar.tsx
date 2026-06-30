@@ -1,13 +1,11 @@
-import type { AuthContext } from '../types';
-
 export const GITHUB_URL =
   import.meta.env.VITE_GITHUB_URL ??
   'https://github.com/thomascamminady/fitfiller';
 
+export const AUTHOR_URL = 'https://github.com/thomascamminady';
+
 interface Props {
-  auth: AuthContext | null;
   onReset: () => void;
-  onUpgrade: () => void;
   hasActivity: boolean;
 }
 
@@ -57,8 +55,7 @@ function GithubMark() {
   );
 }
 
-export function TopBar({ auth, onReset, onUpgrade, hasActivity }: Props) {
-  const isPremium = auth?.isPremium ?? false;
+export function TopBar({ onReset, hasActivity }: Props) {
   return (
     <header className="topbar">
       <button
@@ -75,14 +72,14 @@ export function TopBar({ auth, onReset, onUpgrade, hasActivity }: Props) {
             New file
           </button>
         )}
-        {auth &&
-          (isPremium ? (
-            <span className="tier-chip premium">Premium</span>
-          ) : (
-            <button className="tier-chip upgrade" onClick={onUpgrade}>
-              Go premium
-            </button>
-          ))}
+        <a
+          className="byline"
+          href={AUTHOR_URL}
+          target="_blank"
+          rel="noreferrer"
+        >
+          by Thomas Camminady
+        </a>
         <a
           className="icon-link"
           href={GITHUB_URL}

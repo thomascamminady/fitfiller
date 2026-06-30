@@ -89,12 +89,6 @@ export interface GapFill {
   dropTimerEvents: boolean;
 }
 
-export interface AuthContext {
-  userId: string | null;
-  isPremium: boolean;
-  tier: 'anonymous' | 'free' | 'premium';
-}
-
 export interface ActivityStats {
   points: number;
   distanceMeters: number | null;

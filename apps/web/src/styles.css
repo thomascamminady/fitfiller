@@ -154,33 +154,15 @@ a {
   gap: 14px;
 }
 
-.tier-chip {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 5px 10px;
-  border-radius: 999px;
-  border: 1px solid var(--line-strong);
+.byline {
+  font-size: 13px;
   color: var(--muted);
-  background: var(--panel-2);
+  text-decoration: none;
 }
-
-.tier-chip.premium {
-  color: var(--brass);
-  border-color: var(--brass);
-  background: var(--brass-tint);
-}
-
-button.tier-chip.upgrade {
-  cursor: pointer;
-  color: var(--brass);
-  border-color: var(--brass);
-  background: var(--brass-tint);
-  transition: background 0.15s ease;
-}
-button.tier-chip.upgrade:hover {
-  background: #efe2bf;
+.byline:hover {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .icon-link {

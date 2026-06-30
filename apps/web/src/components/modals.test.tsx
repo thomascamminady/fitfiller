@@ -1,7 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { PremiumModal } from './PremiumModal';
 import { ExportReview } from './ExportReview';
 import type { ExportSummary } from '../types';
 
@@ -27,28 +26,6 @@ const summary = (ok: boolean): ExportSummary => ({
     durationSeconds: 300,
     pausesRemoved: 1,
   },
-});
-
-describe('PremiumModal', () => {
-  it('subscribes when the CTA is clicked', async () => {
-    const onSubscribe = vi.fn();
-    render(
-      <PremiumModal
-        onSubscribe={onSubscribe}
-        onClose={() => {}}
-        busy={false}
-      />,
-    );
-    await userEvent.click(screen.getByRole('button', { name: /go premium/i }));
-    expect(onSubscribe).toHaveBeenCalled();
-  });
-
-  it('disables the CTA while busy', () => {
-    render(
-      <PremiumModal onSubscribe={() => {}} onClose={() => {}} busy={true} />,
-    );
-    expect(screen.getByRole('button', { name: /activating/i })).toBeDisabled();
-  });
 });
 
 describe('ExportReview', () => {

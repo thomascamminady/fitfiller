@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { api, ApiError } from './api';
 import type {
-  AuthContext,
   ExportSummary,
   FillRequest,
   GeoPoint,
@@ -19,7 +18,6 @@ import {
   type PauseFillState,
 } from './components/PauseInspector';
 import { Legal, type LegalPage } from './components/Legal';
-import { PremiumModal } from './components/PremiumModal';
 import { ExportReview } from './components/ExportReview';
 import { pauseStatus, type PauseStatus } from './pauseStatus';
 
@@ -46,7 +44,6 @@ interface Toast {
 }
 
 export function App() {
-  const [auth, setAuth] = useState<AuthContext | null>(null);
   const [upload, setUpload] = useState<UploadResponse | null>(null);
   const [fills, setFills] = useState<Record<string, PauseFillState>>({});
   // -1 = overview: show the whole file before stepping into individual gaps.
@@ -57,21 +54,12 @@ export function App() {
   const [previewBusy, setPreviewBusy] = useState(false);
   const [summaryBusy, setSummaryBusy] = useState(false);
   const [downloadBusy, setDownloadBusy] = useState(false);
-  const [premiumBusy, setPremiumBusy] = useState(false);
 
   const [legal, setLegal] = useState<LegalPage | null>(null);
-  const [showPremium, setShowPremium] = useState(false);
   const [exportSummary, setExportSummary] = useState<ExportSummary | null>(
     null,
   );
   const [toast, setToast] = useState<Toast | null>(null);
-
-  useEffect(() => {
-    api
-      .me()
-      .then(setAuth)
-      .catch(() => setAuth(null));
-  }, []);
 
   useEffect(() => {
     if (!toast) return;
@@ -225,9 +213,6 @@ export function App() {
         const fill = await api.previewFill(upload.id, buildRequest(pauseId));
         updateFill(pauseId, { preview: fill, previewError: null });
       } catch (err) {
-        if (err instanceof ApiError && err.code === 'premium_required') {
-          setShowPremium(true);
-        }
         updateFill(pauseId, { preview: null, previewError: errMessage(err) });
       } finally {
         setPreviewBusy(false);
@@ -265,9 +250,6 @@ export function App() {
       const summary = await api.exportSummary(upload.id, requests);
       setExportSummary(summary);
     } catch (err) {
-      if (err instanceof ApiError && err.code === 'premium_required') {
-        setShowPremium(true);
-      }
       setToast({ message: errMessage(err), error: true });
     } finally {
       setSummaryBusy(false);
@@ -295,22 +277,6 @@ export function App() {
     }
   }, [upload, enabledRequests]);
 
-  const handleSubscribe = useCallback(async () => {
-    setPremiumBusy(true);
-    try {
-      await api.subscribe();
-      setAuth(await api.me());
-      setShowPremium(false);
-      setToast({
-        message: 'Premium unlocked — elevation & grade-adjust are on.',
-      });
-    } catch (err) {
-      setToast({ message: errMessage(err), error: true });
-    } finally {
-      setPremiumBusy(false);
-    }
-  }, []);
-
   const reset = useCallback(() => {
     setUpload(null);
     setFills({});
@@ -320,12 +286,7 @@ export function App() {
 
   return (
     <div className="app">
-      <TopBar
-        auth={auth}
-        onReset={reset}
-        onUpgrade={() => setShowPremium(true)}
-        hasActivity={!!upload}
-      />
+      <TopBar onReset={reset} hasActivity={!!upload} />
 
       {!upload ? (
         <Landing onFile={handleFile} busy={uploadBusy} />
@@ -341,7 +302,6 @@ export function App() {
             }}
             fills={fills}
             updateFill={updateFill}
-            auth={auth}
             drawing={drawing}
             setDrawing={setDrawing}
             onUndoWaypoint={undoWaypoint}
@@ -437,13 +397,6 @@ export function App() {
 
       <Footer onOpen={setLegal} />
       {legal && <Legal page={legal} onClose={() => setLegal(null)} />}
-      {showPremium && (
-        <PremiumModal
-          onSubscribe={handleSubscribe}
-          onClose={() => setShowPremium(false)}
-          busy={premiumBusy}
-        />
-      )}
       {exportSummary && (
         <ExportReview
           summary={exportSummary}
@@ -462,11 +415,6 @@ export function App() {
 }
 
 function errMessage(err: unknown): string {
-  if (err instanceof ApiError) {
-    if (err.code === 'premium_required') {
-      return `${err.message}. Upgrade to unlock elevation & grade-adjusted pace.`;
-    }
-    return err.message;
-  }
+  if (err instanceof ApiError) return err.message;
   return err instanceof Error ? err.message : 'Something went wrong';
 }

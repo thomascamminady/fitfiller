@@ -3,16 +3,11 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { PauseInspector, type PauseFillState } from './PauseInspector';
 import { makeActivity, makeFills } from '../test/fixtures';
-import type { AuthContext } from '../types';
-
-const FREE: AuthContext = { userId: 'u', isPremium: false, tier: 'free' };
-const PREMIUM: AuthContext = { userId: 'u', isPremium: true, tier: 'premium' };
 
 function renderInspector(
   over: {
     activeIndex?: number;
     fills?: Record<string, PauseFillState>;
-    auth?: AuthContext;
   } = {},
 ) {
   const activity = makeActivity(2);
@@ -32,7 +27,6 @@ function renderInspector(
       filename="run.fit"
       activeIndex={over.activeIndex ?? 0}
       fills={fills}
-      auth={over.auth ?? FREE}
       drawing={false}
       previewBusy={false}
       exportBusy={false}
@@ -81,27 +75,17 @@ describe('PauseInspector', () => {
     });
   });
 
-  it('keeps premium switches disabled for free users', () => {
+  it('exposes elevation and grade-adjust as free, enabled switches', () => {
     const activity = makeActivity(2);
     const fills = makeFills(activity);
-    fills['pause-0']!.enabled = true; // reveal the premium controls
-    renderInspector({ fills, auth: FREE });
+    fills['pause-0']!.enabled = true; // reveal the fill controls
+    renderInspector({ fills });
     const switches = screen.getAllByRole('switch');
-    // fill toggle (enabled) + 2 premium switches (disabled)
-    expect(
-      switches.filter((s) => (s as HTMLButtonElement).disabled),
-    ).toHaveLength(2);
-  });
-
-  it('allows premium switches for premium users', () => {
-    const activity = makeActivity(2);
-    const fills = makeFills(activity);
-    fills['pause-0']!.enabled = true;
-    renderInspector({ fills, auth: PREMIUM });
-    const switches = screen.getAllByRole('switch');
+    // fill, snap-to-path, real elevation, grade-adjust — none disabled.
     expect(
       switches.filter((s) => (s as HTMLButtonElement).disabled),
     ).toHaveLength(0);
+    expect(switches.length).toBeGreaterThanOrEqual(4);
   });
 
   it('disables export until at least one gap is enabled', () => {
@@ -133,7 +117,6 @@ describe('PauseInspector', () => {
         filename="run.fit"
         activeIndex={0}
         fills={fills}
-        auth={FREE}
         drawing={false}
         previewBusy={false}
         exportBusy={false}
