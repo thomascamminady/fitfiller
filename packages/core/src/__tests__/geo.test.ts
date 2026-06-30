@@ -38,7 +38,8 @@ describe('polylineLengthMeters', () => {
       { lat: 0, lon: 2 },
     ];
     const total = polylineLengthMeters(pts);
-    const seg = haversineMeters(pts[0]!, pts[1]!) + haversineMeters(pts[1]!, pts[2]!);
+    const seg =
+      haversineMeters(pts[0]!, pts[1]!) + haversineMeters(pts[1]!, pts[2]!);
     expect(total).toBeCloseTo(seg, 6);
   });
 });

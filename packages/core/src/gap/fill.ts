@@ -213,7 +213,8 @@ export function buildGapFill(input: GapFillInput): GapFill {
 
     const segLen = cum[k]! - cum[k - 1]!;
     const segTime = t1 - t0;
-    const speed = segTime > 0 ? segLen / segTime : totalDistance / movingSeconds;
+    const speed =
+      segTime > 0 ? segLen / segTime : totalDistance / movingSeconds;
 
     let altitude: number | null;
     if (config.elevation?.mode === 'route' && useElevation) {
@@ -267,6 +268,7 @@ export function straightRoute(pause: PauseSegment): GeoPoint[] {
 /** Convenience: straight-line distance of a route in metres. */
 export function routeDistanceMeters(route: readonly GeoPoint[]): number {
   let d = 0;
-  for (let i = 1; i < route.length; i++) d += haversineMeters(route[i - 1]!, route[i]!);
+  for (let i = 1; i < route.length; i++)
+    d += haversineMeters(route[i - 1]!, route[i]!);
   return d;
 }

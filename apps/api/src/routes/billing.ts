@@ -6,7 +6,10 @@ import type { AppDeps } from '../app.js';
  * webhook would confirm the subscription; here `subscribe` simply unlocks
  * premium for the current user so the flow is clickable end-to-end.
  */
-export function registerBillingRoutes(app: FastifyInstance, deps: AppDeps): void {
+export function registerBillingRoutes(
+  app: FastifyInstance,
+  deps: AppDeps,
+): void {
   app.post('/billing/subscribe', async (req) => {
     const userId = req.auth.userId ?? deps.currentUserId();
     deps.premium.grant(userId);

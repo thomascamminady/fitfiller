@@ -179,11 +179,29 @@ export function runWithPause(): Uint8Array {
   const records: SimRecord[] = [];
   // 0..10s pre-pause.
   for (let s = 0; s <= 10; s++) {
-    records.push({ sec: s, lat: 47, lon: 8 + s * 0.0001, dist: s * 7.6, speed: 3, alt: 100 + s, hr: 150, cad: 85 });
+    records.push({
+      sec: s,
+      lat: 47,
+      lon: 8 + s * 0.0001,
+      dist: s * 7.6,
+      speed: 3,
+      alt: 100 + s,
+      hr: 150,
+      cad: 85,
+    });
   }
   // Resume 60s later, ~600m further on.
   for (let s = 0; s <= 10; s++) {
-    records.push({ sec: 70 + s, lat: 47, lon: 8.006 + s * 0.0001, dist: 76 + s * 7.6, speed: 3, alt: 120 + s, hr: 155, cad: 88 });
+    records.push({
+      sec: 70 + s,
+      lat: 47,
+      lon: 8.006 + s * 0.0001,
+      dist: 76 + s * 7.6,
+      speed: 3,
+      alt: 120 + s,
+      hr: 155,
+      cad: 88,
+    });
   }
   return buildFit({
     records,

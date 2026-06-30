@@ -19,7 +19,9 @@ export function PremiumModal({ onSubscribe, onClose, busy }: Props) {
         <button className="legal-close" onClick={onClose} aria-label="Close">
           ×
         </button>
-        <p className="eyebrow" style={{ color: 'var(--brass)' }}>fitfiller premium</p>
+        <p className="eyebrow" style={{ color: 'var(--brass)' }}>
+          fitfiller premium
+        </p>
         <h2>Repair with real terrain</h2>
         <ul className="premium-list">
           <li>
@@ -27,8 +29,8 @@ export function PremiumModal({ onSubscribe, onClose, busy }: Props) {
             your traced route instead of a straight line.
           </li>
           <li>
-            <strong>Grade-adjusted pace</strong> — distribute effort by slope, so
-            the filled segment matches how you actually ran it.
+            <strong>Grade-adjusted pace</strong> — distribute effort by slope,
+            so the filled segment matches how you actually ran it.
           </li>
           <li>Support an open-source project and keep it ad-free.</li>
         </ul>

@@ -4,7 +4,11 @@ import type { TrackPoint, TimerEvent } from '../domain/types.js';
 
 const T0 = 1_000_000_000_000;
 
-function pt(sec: number, lat: number | null = 47, lon: number | null = 8): TrackPoint {
+function pt(
+  sec: number,
+  lat: number | null = 47,
+  lon: number | null = 8,
+): TrackPoint {
   return {
     time: T0 + sec * 1000,
     lat,
@@ -23,7 +27,12 @@ function ev(sec: number, type: TimerEvent['type']): TimerEvent {
 
 describe('detectPauses — event driven', () => {
   it('creates one pause from a stop/start pair', () => {
-    const points = [pt(0), pt(5, 47, 8.0001), pt(65, 47, 8.006), pt(70, 47, 8.0061)];
+    const points = [
+      pt(0),
+      pt(5, 47, 8.0001),
+      pt(65, 47, 8.006),
+      pt(70, 47, 8.0061),
+    ];
     const events = [ev(5, 'stop'), ev(65, 'start')];
     const pauses = detectPauses(points, events);
     expect(pauses).toHaveLength(1);
@@ -94,7 +103,12 @@ describe('detectPauses — edge cases', () => {
   });
 
   it('reports zero straight-line distance when GPS is missing', () => {
-    const points = [pt(0, null, null), pt(5, null, null), pt(65, null, null), pt(70, null, null)];
+    const points = [
+      pt(0, null, null),
+      pt(5, null, null),
+      pt(65, null, null),
+      pt(70, null, null),
+    ];
     const pauses = detectPauses(points, [ev(5, 'stop'), ev(65, 'start')]);
     expect(pauses[0]!.straightLineMeters).toBe(0);
   });

@@ -8,10 +8,22 @@ interface Props {
 /** The hero motif: a route with a missing middle, redrawn whole. */
 function TraceArt() {
   return (
-    <svg className="trace-art" viewBox="0 0 460 120" fill="none" aria-hidden="true">
+    <svg
+      className="trace-art"
+      viewBox="0 0 460 120"
+      fill="none"
+      aria-hidden="true"
+    >
       <defs>
         {/* The mend: blue (paused) bleeding into red (resumed), echoing the map. */}
-        <linearGradient id="mend" x1="195" y1="72" x2="300" y2="28" gradientUnits="userSpaceOnUse">
+        <linearGradient
+          id="mend"
+          x1="195"
+          y1="72"
+          x2="300"
+          y2="28"
+          gradientUnits="userSpaceOnUse"
+        >
           <stop offset="0" stopColor="var(--paused)" />
           <stop offset="1" stopColor="var(--resumed)" />
         </linearGradient>

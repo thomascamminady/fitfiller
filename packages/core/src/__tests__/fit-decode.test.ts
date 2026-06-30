@@ -60,7 +60,12 @@ describe('decodeFit', () => {
 
   it('imports laps', () => {
     const bytes = buildFit({
-      records: Array.from({ length: 8 }, (_, s) => ({ sec: s, lat: 47, lon: 8 + s * 1e-4, dist: s * 3 })),
+      records: Array.from({ length: 8 }, (_, s) => ({
+        sec: s,
+        lat: 47,
+        lon: 8 + s * 1e-4,
+        dist: s * 3,
+      })),
       laps: [
         { startSec: 0, endSec: 3, distance: 100, timer: 3 },
         { startSec: 4, endSec: 7, distance: 100, timer: 3 },

@@ -119,8 +119,7 @@ export function decodeFit(bytes: Uint8Array): DecodedFit {
   const pauses: PauseSegment[] = detectPauses(points, events);
 
   const session = messages.sessionMesgs?.[0] as
-    | Record<string, unknown>
-    | undefined;
+    Record<string, unknown> | undefined;
   const firstPoint = points[0];
 
   const lapMesgs = (messages.lapMesgs ?? []) as Record<string, unknown>[];

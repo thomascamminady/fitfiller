@@ -47,8 +47,20 @@ export function makeActivity(pauseCount = 2): ParsedActivity {
     pauses,
     events: [],
     laps: [
-      { index: 0, startTime: T0, endTime: T0 + 60_000, distanceMeters: 1000, timerSeconds: 300 },
-      { index: 1, startTime: T0 + 60_000, endTime: T0 + 120_000, distanceMeters: 1000, timerSeconds: 300 },
+      {
+        index: 0,
+        startTime: T0,
+        endTime: T0 + 60_000,
+        distanceMeters: 1000,
+        timerSeconds: 300,
+      },
+      {
+        index: 1,
+        startTime: T0 + 60_000,
+        endTime: T0 + 120_000,
+        distanceMeters: 1000,
+        timerSeconds: 300,
+      },
     ],
   };
 }
@@ -69,6 +81,8 @@ export function defaultFill(): PauseFillState {
   };
 }
 
-export function makeFills(activity: ParsedActivity): Record<string, PauseFillState> {
+export function makeFills(
+  activity: ParsedActivity,
+): Record<string, PauseFillState> {
   return Object.fromEntries(activity.pauses.map((p) => [p.id, defaultFill()]));
 }

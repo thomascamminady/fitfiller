@@ -1,4 +1,10 @@
-import type { AuthContext, FillMode, GapFill, PauseSegment, ParsedActivity } from '../types';
+import type {
+  AuthContext,
+  FillMode,
+  GapFill,
+  PauseSegment,
+  ParsedActivity,
+} from '../types';
 import { fmtDistance, fmtDuration, fmtPace, fmtSport } from '../format';
 import { pauseStatus, pauseHasGps, type PauseStatus } from '../pauseStatus';
 
@@ -122,7 +128,9 @@ export function PauseInspector(props: Props) {
   const isPremium = auth?.isPremium ?? false;
   const enabledCount = Object.values(fills).filter((f) => f.enabled).length;
 
-  const statuses = pauses.map((p) => pauseStatus(p, fills[p.id]?.enabled ?? false));
+  const statuses = pauses.map((p) =>
+    pauseStatus(p, fills[p.id]?.enabled ?? false),
+  );
   const issueCount = statuses.filter((s) => s === 'issue').length;
 
   return (
@@ -130,8 +138,14 @@ export function PauseInspector(props: Props) {
       <section className="sidebar-section">
         <p className="eyebrow">{fmtSport(summary.sport)}</p>
         <div className="summary-grid">
-          <Stat label="Distance" value={fmtDistance(summary.totalDistanceMeters)} />
-          <Stat label="Moving time" value={fmtDuration(summary.totalTimerSeconds)} />
+          <Stat
+            label="Distance"
+            value={fmtDistance(summary.totalDistanceMeters)}
+          />
+          <Stat
+            label="Moving time"
+            value={fmtDuration(summary.totalTimerSeconds)}
+          />
           <Stat label="Laps" value={String(summary.lapCount)} />
           <Stat label="Pauses found" value={String(summary.pauseCount)} />
         </div>
@@ -239,14 +253,25 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
-function StatusBadge({ status, meters }: { status: PauseStatus; meters: number }) {
+function StatusBadge({
+  status,
+  meters,
+}: {
+  status: PauseStatus;
+  meters: number;
+}) {
   const text: Record<PauseStatus, string> = {
     break: 'Barely moved — likely a real break, probably nothing to fix',
     issue: `Moved ~${fmtDistance(meters)} while paused — the watch missed real ground`,
     fixed: 'Rebuilding this gap — it will be written into the new file',
     nogps: 'No GPS on one side — this gap can’t be traced on the map',
   };
-  const icon: Record<PauseStatus, string> = { break: '✓', issue: '⚠', fixed: '✓', nogps: '—' };
+  const icon: Record<PauseStatus, string> = {
+    break: '✓',
+    issue: '⚠',
+    fixed: '✓',
+    nogps: '—',
+  };
   return (
     <span className={`status-badge tone-${status}`}>
       <span className="status-icon">{icon[status]}</span>
@@ -288,7 +313,10 @@ function PauseCard({
     <div className="pause-card">
       <div className="pause-readout">
         <Stat label="Paused for" value={fmtDuration(pause.pausedSeconds)} />
-        <Stat label="Distance apart" value={fmtDistance(pause.straightLineMeters)} />
+        <Stat
+          label="Distance apart"
+          value={fmtDistance(pause.straightLineMeters)}
+        />
       </div>
       <StatusBadge status={status} meters={pause.straightLineMeters} />
 
@@ -350,7 +378,8 @@ function PauseCard({
 
               <div className="field">
                 <label>
-                  Actual break <span className="sub">seconds standing still</span>
+                  Actual break{' '}
+                  <span className="sub">seconds standing still</span>
                 </label>
                 <input
                   className="input"
@@ -359,7 +388,9 @@ function PauseCard({
                   max={Math.floor(pause.pausedSeconds)}
                   value={state.actualBreakSeconds}
                   onChange={(e) =>
-                    update({ actualBreakSeconds: Math.max(0, Number(e.target.value)) })
+                    update({
+                      actualBreakSeconds: Math.max(0, Number(e.target.value)),
+                    })
                   }
                 />
               </div>
@@ -390,7 +421,9 @@ function PauseCard({
                   premium
                   disabled={!isPremium}
                   checked={state.elevation === 'route'}
-                  onChange={(v) => update({ elevation: v ? 'route' : 'linear' })}
+                  onChange={(v) =>
+                    update({ elevation: v ? 'route' : 'linear' })
+                  }
                 />
               </div>
               <div className="toggle-row">

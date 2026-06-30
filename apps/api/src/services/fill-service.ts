@@ -26,7 +26,9 @@ export class PauseNotFoundError extends Error {
 }
 
 function requiresElevation(req: FillRequest): boolean {
-  return req.config.elevation?.mode === 'route' || req.config.gradeAdjust === true;
+  return (
+    req.config.elevation?.mode === 'route' || req.config.gradeAdjust === true
+  );
 }
 
 /**

@@ -19,7 +19,13 @@ const pt = (sec: number, hr: number | null): TrackPoint => ({
 describe('HrChart', () => {
   it('renders an SVG with pause bands and lap ticks', () => {
     const activity = makeActivity(1);
-    const points = [pt(0, 150), pt(1, 152), pt(2, 151), pt(60, 158), pt(61, 160)];
+    const points = [
+      pt(0, 150),
+      pt(1, 152),
+      pt(2, 151),
+      pt(60, 158),
+      pt(61, 160),
+    ];
     const { container } = render(
       <HrChart
         points={points}
@@ -73,7 +79,10 @@ describe('HrChart', () => {
   });
 
   it('shows an empty state with neither heart-rate nor elevation data', () => {
-    const blank = (sec: number): TrackPoint => ({ ...pt(sec, null), altitude: null });
+    const blank = (sec: number): TrackPoint => ({
+      ...pt(sec, null),
+      altitude: null,
+    });
     const { getByText } = render(
       <HrChart
         points={[blank(0), blank(1)]}

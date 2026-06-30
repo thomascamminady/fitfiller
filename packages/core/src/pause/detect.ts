@@ -13,7 +13,10 @@ export interface DetectPausesOptions {
 const isStop = (t: string): boolean =>
   t === 'stop' || t === 'stopAll' || t === 'stopDisableAll';
 
-function lastPointBefore(points: TrackPoint[], time: number): TrackPoint | null {
+function lastPointBefore(
+  points: TrackPoint[],
+  time: number,
+): TrackPoint | null {
   let found: TrackPoint | null = null;
   for (const p of points) {
     if (p.time <= time) found = p;
@@ -22,7 +25,10 @@ function lastPointBefore(points: TrackPoint[], time: number): TrackPoint | null 
   return found;
 }
 
-function firstPointAfter(points: TrackPoint[], time: number): TrackPoint | null {
+function firstPointAfter(
+  points: TrackPoint[],
+  time: number,
+): TrackPoint | null {
   for (const p of points) {
     if (p.time >= time) return p;
   }
@@ -33,7 +39,10 @@ function straightLine(a: TrackPoint, b: TrackPoint): number {
   if (a.lat === null || a.lon === null || b.lat === null || b.lon === null) {
     return 0;
   }
-  return haversineMeters({ lat: a.lat, lon: a.lon }, { lat: b.lat, lon: b.lon });
+  return haversineMeters(
+    { lat: a.lat, lon: a.lon },
+    { lat: b.lat, lon: b.lon },
+  );
 }
 
 function makeSegment(

@@ -8,11 +8,13 @@ import type { AuthContext } from '../types';
 const FREE: AuthContext = { userId: 'u', isPremium: false, tier: 'free' };
 const PREMIUM: AuthContext = { userId: 'u', isPremium: true, tier: 'premium' };
 
-function renderInspector(over: {
-  activeIndex?: number;
-  fills?: Record<string, PauseFillState>;
-  auth?: AuthContext;
-} = {}) {
+function renderInspector(
+  over: {
+    activeIndex?: number;
+    fills?: Record<string, PauseFillState>;
+    auth?: AuthContext;
+  } = {},
+) {
   const activity = makeActivity(2);
   const fills = over.fills ?? makeFills(activity);
   const handlers = {
@@ -57,7 +59,9 @@ describe('PauseInspector', () => {
     const selects = screen.getAllByRole('combobox');
     // First fill control is heart rate.
     await userEvent.selectOptions(selects[0]!, 'value');
-    expect(handlers.updateFill).toHaveBeenCalledWith('pause-0', { heartRate: 'value' });
+    expect(handlers.updateFill).toHaveBeenCalledWith('pause-0', {
+      heartRate: 'value',
+    });
   });
 
   it('shows the current pause position in the stepper', () => {
@@ -68,7 +72,9 @@ describe('PauseInspector', () => {
 
   it('disables previous on the first pause and advances on next', async () => {
     const { handlers } = renderInspector({ activeIndex: 0 });
-    expect(screen.getByRole('button', { name: /previous pause/i })).toBeDisabled();
+    expect(
+      screen.getByRole('button', { name: /previous pause/i }),
+    ).toBeDisabled();
     await userEvent.click(screen.getByRole('button', { name: /next pause/i }));
     expect(handlers.setActiveIndex).toHaveBeenCalledWith(1);
   });
@@ -89,7 +95,9 @@ describe('PauseInspector', () => {
     renderInspector({ fills, auth: FREE });
     const switches = screen.getAllByRole('switch');
     // fill toggle (enabled) + 2 premium switches (disabled)
-    expect(switches.filter((s) => (s as HTMLButtonElement).disabled)).toHaveLength(2);
+    expect(
+      switches.filter((s) => (s as HTMLButtonElement).disabled),
+    ).toHaveLength(2);
   });
 
   it('allows premium switches for premium users', () => {
@@ -98,7 +106,9 @@ describe('PauseInspector', () => {
     fills['pause-0']!.enabled = true;
     renderInspector({ fills, auth: PREMIUM });
     const switches = screen.getAllByRole('switch');
-    expect(switches.filter((s) => (s as HTMLButtonElement).disabled)).toHaveLength(0);
+    expect(
+      switches.filter((s) => (s as HTMLButtonElement).disabled),
+    ).toHaveLength(0);
   });
 
   it('disables export until at least one gap is enabled', () => {

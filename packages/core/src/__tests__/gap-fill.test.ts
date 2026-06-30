@@ -24,8 +24,22 @@ function pt(over: Partial<TrackPoint>): TrackPoint {
 }
 
 function pause(over: Partial<PauseSegment> = {}): PauseSegment {
-  const before = pt({ time: T0, lon: 8.0, distance: 100, altitude: 100, heartRate: 140, cadence: 80 });
-  const after = pt({ time: T0 + 60_000, lon: 8.006, distance: 100, altitude: 160, heartRate: 160, cadence: 90 });
+  const before = pt({
+    time: T0,
+    lon: 8.0,
+    distance: 100,
+    altitude: 100,
+    heartRate: 140,
+    cadence: 80,
+  });
+  const after = pt({
+    time: T0 + 60_000,
+    lon: 8.006,
+    distance: 100,
+    altitude: 160,
+    heartRate: 160,
+    cadence: 90,
+  });
   return {
     id: 'pause-0',
     index: 0,
@@ -51,7 +65,10 @@ describe('buildGapFill — geometry & timing', () => {
       route: straight,
       config: { actualBreakSeconds: 10 },
     });
-    expect(fill.addedDistanceMeters).toBeCloseTo(polylineLengthMeters(straight), 3);
+    expect(fill.addedDistanceMeters).toBeCloseTo(
+      polylineLengthMeters(straight),
+      3,
+    );
     expect(fill.movingSeconds).toBe(50);
     expect(fill.stopTime).toBe(T0);
     expect(fill.startTime).toBe(T0 + 60_000);
@@ -59,7 +76,11 @@ describe('buildGapFill — geometry & timing', () => {
   });
 
   it('produces records that stay within the gap window', () => {
-    const fill = buildGapFill({ pause: pause(), route: straight, config: { actualBreakSeconds: 0 } });
+    const fill = buildGapFill({
+      pause: pause(),
+      route: straight,
+      config: { actualBreakSeconds: 0 },
+    });
     expect(fill.records.length).toBeGreaterThan(0);
     for (const r of fill.records) {
       expect(r.time).toBeGreaterThan(T0);
@@ -68,7 +89,11 @@ describe('buildGapFill — geometry & timing', () => {
   });
 
   it('keeps cumulative distance monotonic between the endpoints', () => {
-    const fill = buildGapFill({ pause: pause(), route: straight, config: { actualBreakSeconds: 5 } });
+    const fill = buildGapFill({
+      pause: pause(),
+      route: straight,
+      config: { actualBreakSeconds: 5 },
+    });
     const base = 100;
     let prev = base;
     for (const r of fill.records) {
@@ -136,7 +161,10 @@ describe('buildGapFill — field filling', () => {
     const fill = buildGapFill({
       pause: pause(),
       route: straight,
-      config: { actualBreakSeconds: 0, heartRate: { mode: 'value', value: 172 } },
+      config: {
+        actualBreakSeconds: 0,
+        heartRate: { mode: 'value', value: 172 },
+      },
     });
     expect(fill.records[0]!.heartRate).toBe(172);
   });
@@ -145,7 +173,11 @@ describe('buildGapFill — field filling', () => {
     const fill = buildGapFill({
       pause: pause(),
       route: straight,
-      config: { actualBreakSeconds: 0, heartRate: { mode: 'none' }, cadence: { mode: 'none' } },
+      config: {
+        actualBreakSeconds: 0,
+        heartRate: { mode: 'none' },
+        cadence: { mode: 'none' },
+      },
     });
     expect(fill.records[0]!.heartRate).toBeNull();
     expect(fill.records[0]!.cadence).toBeNull();
@@ -221,16 +253,25 @@ describe('route helpers', () => {
   });
 
   it('straightRoute throws when an endpoint lacks GPS', () => {
-    expect(() => straightRoute(pause({ before: pt({ lat: null, lon: null }) }))).toThrow();
+    expect(() =>
+      straightRoute(pause({ before: pt({ lat: null, lon: null }) })),
+    ).toThrow();
   });
 
   it('buildGapFill throws on a degenerate route', () => {
     expect(() =>
-      buildGapFill({ pause: pause(), route: [{ lat: 47, lon: 8 }], config: { actualBreakSeconds: 0 } }),
+      buildGapFill({
+        pause: pause(),
+        route: [{ lat: 47, lon: 8 }],
+        config: { actualBreakSeconds: 0 },
+      }),
     ).toThrow();
   });
 
   it('routeDistanceMeters matches polylineLengthMeters', () => {
-    expect(routeDistanceMeters(straight)).toBeCloseTo(polylineLengthMeters(straight), 6);
+    expect(routeDistanceMeters(straight)).toBeCloseTo(
+      polylineLengthMeters(straight),
+      6,
+    );
   });
 });

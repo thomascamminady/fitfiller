@@ -27,7 +27,10 @@ export function pauseHasGps(p: PauseSegment): boolean {
  *  - `issue`  — moved a meaningful distance while "paused" → the watch missed
  *               real ground and this should be repaired (warning).
  */
-export function pauseStatus(pause: PauseSegment, enabled: boolean): PauseStatus {
+export function pauseStatus(
+  pause: PauseSegment,
+  enabled: boolean,
+): PauseStatus {
   if (enabled) return 'fixed';
   if (!pauseHasGps(pause)) return 'nogps';
   if (pause.straightLineMeters < BREAK_THRESHOLD_METERS) return 'break';

@@ -52,7 +52,10 @@ export const api = {
     );
   },
 
-  async exportSummary(id: string, fills: FillRequest[]): Promise<ExportSummary> {
+  async exportSummary(
+    id: string,
+    fills: FillRequest[],
+  ): Promise<ExportSummary> {
     return unwrap(
       await fetch(`/api/activities/${id}/export-summary`, {
         method: 'POST',

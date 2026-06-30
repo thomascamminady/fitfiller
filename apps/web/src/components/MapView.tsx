@@ -9,7 +9,8 @@ import type { GeoPoint, PauseSegment, TrackPoint } from '../types';
 import { STATUS_META, type PauseStatus } from '../pauseStatus';
 
 const MAP_STYLE =
-  import.meta.env.VITE_MAP_STYLE ?? 'https://tiles.openfreemap.org/styles/liberty';
+  import.meta.env.VITE_MAP_STYLE ??
+  'https://tiles.openfreemap.org/styles/liberty';
 
 const TRACE = '#1b1b1b'; // recorded track — black
 const PAUSE = '#2563eb'; // where the watch paused — blue
@@ -36,7 +37,11 @@ function lineFrom(coords: [number, number][]): FC {
   return {
     type: 'FeatureCollection',
     features: [
-      { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: coords } },
+      {
+        type: 'Feature',
+        properties: {},
+        geometry: { type: 'LineString', coordinates: coords },
+      },
     ],
   };
 }
@@ -53,7 +58,9 @@ function pointsFrom(coords: [number, number][]): FC {
 }
 
 /** Points tagged with a pause status so MapLibre can colour them per-feature. */
-function statusPointsFrom(items: { coord: [number, number]; status: PauseStatus }[]): FC {
+function statusPointsFrom(
+  items: { coord: [number, number]; status: PauseStatus }[],
+): FC {
   return {
     type: 'FeatureCollection',
     features: items.map((it) => ({
@@ -68,9 +75,12 @@ function statusPointsFrom(items: { coord: [number, number]; status: PauseStatus 
 const STATUS_CIRCLE_COLOR: ExpressionSpecification = [
   'match',
   ['get', 'status'],
-  'issue', STATUS_META.issue.color,
-  'fixed', STATUS_META.fixed.color,
-  'nogps', STATUS_META.nogps.color,
+  'issue',
+  STATUS_META.issue.color,
+  'fixed',
+  STATUS_META.fixed.color,
+  'nogps',
+  STATUS_META.nogps.color,
   STATUS_META.break.color,
 ];
 
@@ -130,7 +140,10 @@ export function MapView({
       attributionControl: { compact: true },
     });
     mapRef.current = map;
-    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+    map.addControl(
+      new maplibregl.NavigationControl({ showCompass: false }),
+      'top-right',
+    );
     beforePinRef.current = makePin('Paused', PAUSE);
     afterPinRef.current = makePin('Resumed', RESUME);
 
@@ -193,7 +206,8 @@ export function MapView({
     });
 
     map.on('click', (e) => {
-      if (drawingRef.current) onAddRef.current({ lat: e.lngLat.lat, lon: e.lngLat.lng });
+      if (drawingRef.current)
+        onAddRef.current({ lat: e.lngLat.lat, lon: e.lngLat.lng });
     });
 
     return () => {
@@ -232,7 +246,9 @@ export function MapView({
     src('gap')?.setData(activePause ? lineFrom(routeCoords) : EMPTY);
     src('route-pts')?.setData(pointsFrom(routeCoords.slice(1, -1)));
 
-    const previewLine = previewRecords ? lineFrom(trackCoords(previewRecords)) : EMPTY;
+    const previewLine = previewRecords
+      ? lineFrom(trackCoords(previewRecords))
+      : EMPTY;
     src('preview')?.setData(previewLine);
     src('preview-casing')?.setData(previewLine);
     // Once filled, fade the dashed proposal so the solid green result reads clearly.
@@ -259,7 +275,9 @@ export function MapView({
     const map = mapRef.current;
     if (!map || !readyRef.current) return;
     const coords =
-      activePause && route.length >= 2 ? route.map((p) => [p.lon, p.lat] as [number, number]) : trackCoords(points);
+      activePause && route.length >= 2
+        ? route.map((p) => [p.lon, p.lat] as [number, number])
+        : trackCoords(points);
     if (coords.length < 1) return;
     const bounds = coords.reduce(
       (acc, c) => acc.extend(c),

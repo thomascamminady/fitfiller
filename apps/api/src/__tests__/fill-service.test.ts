@@ -49,7 +49,10 @@ describe('FillService', () => {
   it('blocks route-elevation for free users', async () => {
     const svc = new FillService(new FakeElevation());
     const base = fillRequestFor(firstPause());
-    const req = { ...base, config: { ...base.config, elevation: { mode: 'route' as const } } };
+    const req = {
+      ...base,
+      config: { ...base.config, elevation: { mode: 'route' as const } },
+    };
     await expect(svc.build(decoded(), req, FREE)).rejects.toBeInstanceOf(
       PremiumRequiredError,
     );
@@ -59,7 +62,10 @@ describe('FillService', () => {
     const elevation = new FakeElevation();
     const svc = new FillService(elevation);
     const base = fillRequestFor(firstPause());
-    const req = { ...base, config: { ...base.config, elevation: { mode: 'route' as const } } };
+    const req = {
+      ...base,
+      config: { ...base.config, elevation: { mode: 'route' as const } },
+    };
     const fill = await svc.build(decoded(), req, PREMIUM);
     expect(elevation.lookup).toHaveBeenCalledOnce();
     // Filled altitude should reflect the provider's value.

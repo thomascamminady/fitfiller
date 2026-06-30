@@ -2,7 +2,12 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import type { FastifyInstance } from 'fastify';
 import { buildApp } from '../app.js';
 import { loadConfig } from '../config.js';
-import { sampleFit, devFieldFit, multipart, fillRequestFor } from './fixtures.js';
+import {
+  sampleFit,
+  devFieldFit,
+  multipart,
+  fillRequestFor,
+} from './fixtures.js';
 
 function makeApp(env: Record<string, string> = {}) {
   return buildApp(
@@ -71,7 +76,11 @@ describe('API — upload', () => {
   });
 
   it('rejects a non-FIT file with 400', async () => {
-    const mp = multipart('file', 'bad.fit', Buffer.from('not a fit file at all'));
+    const mp = multipart(
+      'file',
+      'bad.fit',
+      Buffer.from('not a fit file at all'),
+    );
     const res = await app.inject({
       method: 'POST',
       url: '/api/activities',
@@ -83,7 +92,10 @@ describe('API — upload', () => {
   });
 
   it('returns 404 for an unknown activity', async () => {
-    const res = await app.inject({ method: 'GET', url: '/api/activities/does-not-exist' });
+    const res = await app.inject({
+      method: 'GET',
+      url: '/api/activities/does-not-exist',
+    });
     expect(res.statusCode).toBe(404);
   });
 
@@ -103,7 +115,10 @@ describe('API — upload', () => {
 
   it('fetches a stored activity by id', async () => {
     const id = (await uploadSample(app)).json().id;
-    const res = await app.inject({ method: 'GET', url: `/api/activities/${id}` });
+    const res = await app.inject({
+      method: 'GET',
+      url: `/api/activities/${id}`,
+    });
     expect(res.statusCode).toBe(200);
     expect(res.json().id).toBe(id);
   });
@@ -200,7 +215,10 @@ describe('API — fill & export', () => {
       url: `/api/activities/${upload.id}/preview-fill`,
       payload: {
         pauseId: upload.activity.pauses[0].id,
-        route: [{ lat: 999, lon: 8 }, { lat: 47, lon: 8 }],
+        route: [
+          { lat: 999, lon: 8 },
+          { lat: 47, lon: 8 },
+        ],
         config: { actualBreakSeconds: 0 },
       },
     });
@@ -209,12 +227,14 @@ describe('API — fill & export', () => {
 
   it('exports a file with developer fields without corrupting it', async () => {
     const mp = multipart('file', 'wahoo.fit', devFieldFit());
-    const upload = (await app.inject({
-      method: 'POST',
-      url: '/api/activities',
-      headers: mp.headers,
-      payload: mp.payload,
-    })).json();
+    const upload = (
+      await app.inject({
+        method: 'POST',
+        url: '/api/activities',
+        headers: mp.headers,
+        payload: mp.payload,
+      })
+    ).json();
     expect(upload.activity.pauses).toHaveLength(1);
     const req = fillRequestFor(upload.activity.pauses[0]);
     const res = await app.inject({
@@ -251,7 +271,9 @@ describe('API — premium gating', () => {
     const res = await app.inject({
       method: 'POST',
       url: `/api/activities/${upload.id}/export-summary`,
-      payload: { fills: [{ ...req, config: { ...req.config, gradeAdjust: true } }] },
+      payload: {
+        fills: [{ ...req, config: { ...req.config, gradeAdjust: true } }],
+      },
     });
     expect(res.statusCode).toBe(402);
     await app.close();
@@ -265,7 +287,10 @@ describe('API — premium gating', () => {
     const res = await app.inject({
       method: 'POST',
       url: `/api/activities/${upload.id}/preview-fill`,
-      payload: { ...req, config: { ...req.config, elevation: { mode: 'route' } } },
+      payload: {
+        ...req,
+        config: { ...req.config, elevation: { mode: 'route' } },
+      },
     });
     expect(res.statusCode).toBe(402);
     await app.close();
@@ -274,15 +299,24 @@ describe('API — premium gating', () => {
   it('unlocks premium after subscribing, then re-locks on cancel', async () => {
     const app = await makeApp({ DEV_FORCE_PREMIUM: 'false' });
     await app.ready();
-    expect((await app.inject({ method: 'GET', url: '/api/me' })).json().isPremium).toBe(false);
+    expect(
+      (await app.inject({ method: 'GET', url: '/api/me' })).json().isPremium,
+    ).toBe(false);
 
-    const sub = await app.inject({ method: 'POST', url: '/api/billing/subscribe' });
+    const sub = await app.inject({
+      method: 'POST',
+      url: '/api/billing/subscribe',
+    });
     expect(sub.statusCode).toBe(200);
     expect(sub.json().isPremium).toBe(true);
-    expect((await app.inject({ method: 'GET', url: '/api/me' })).json().isPremium).toBe(true);
+    expect(
+      (await app.inject({ method: 'GET', url: '/api/me' })).json().isPremium,
+    ).toBe(true);
 
     await app.inject({ method: 'POST', url: '/api/billing/cancel' });
-    expect((await app.inject({ method: 'GET', url: '/api/me' })).json().isPremium).toBe(false);
+    expect(
+      (await app.inject({ method: 'GET', url: '/api/me' })).json().isPremium,
+    ).toBe(false);
     await app.close();
   });
 

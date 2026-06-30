@@ -58,11 +58,16 @@ export function App() {
 
   const [legal, setLegal] = useState<LegalPage | null>(null);
   const [showPremium, setShowPremium] = useState(false);
-  const [exportSummary, setExportSummary] = useState<ExportSummary | null>(null);
+  const [exportSummary, setExportSummary] = useState<ExportSummary | null>(
+    null,
+  );
   const [toast, setToast] = useState<Toast | null>(null);
 
   useEffect(() => {
-    api.me().then(setAuth).catch(() => setAuth(null));
+    api
+      .me()
+      .then(setAuth)
+      .catch(() => setAuth(null));
   }, []);
 
   useEffect(() => {
@@ -97,7 +102,8 @@ export function App() {
 
   const pauseStatuses = useMemo<Record<string, PauseStatus>>(() => {
     const out: Record<string, PauseStatus> = {};
-    for (const p of pauses) out[p.id] = pauseStatus(p, fills[p.id]?.enabled ?? false);
+    for (const p of pauses)
+      out[p.id] = pauseStatus(p, fills[p.id]?.enabled ?? false);
     return out;
   }, [pauses, fills]);
 
@@ -116,7 +122,9 @@ export function App() {
       const res = await api.upload(file);
       setUpload(res);
       setFills(
-        Object.fromEntries(res.activity.pauses.map((p) => [p.id, defaultFill()])),
+        Object.fromEntries(
+          res.activity.pauses.map((p) => [p.id, defaultFill()]),
+        ),
       );
       setActiveIndex(0);
       setDrawing(false);
@@ -165,7 +173,11 @@ export function App() {
       const cur = prev[pauseId]!;
       return {
         ...prev,
-        [pauseId]: { ...cur, waypoints: cur.waypoints.slice(0, -1), preview: null },
+        [pauseId]: {
+          ...cur,
+          waypoints: cur.waypoints.slice(0, -1),
+          preview: null,
+        },
       };
     });
   }, []);
@@ -234,7 +246,8 @@ export function App() {
   }, [upload, activePause, fills, activeRoute, handlePreview]);
 
   const enabledRequests = useCallback(
-    () => pauses.filter((p) => fills[p.id]?.enabled).map((p) => buildRequest(p.id)),
+    () =>
+      pauses.filter((p) => fills[p.id]?.enabled).map((p) => buildRequest(p.id)),
     [pauses, fills, buildRequest],
   );
 
@@ -284,7 +297,9 @@ export function App() {
       await api.subscribe();
       setAuth(await api.me());
       setShowPremium(false);
-      setToast({ message: 'Premium unlocked — elevation & grade-adjust are on.' });
+      setToast({
+        message: 'Premium unlocked — elevation & grade-adjust are on.',
+      });
     } catch (err) {
       setToast({ message: errMessage(err), error: true });
     } finally {
@@ -358,12 +373,17 @@ export function App() {
                   <div className="draw-actions">
                     <button
                       className="btn btn-sm btn-ghost-light"
-                      onClick={() => activePause && undoWaypoint(activePause.id)}
+                      onClick={() =>
+                        activePause && undoWaypoint(activePause.id)
+                      }
                       disabled={(activeFill?.waypoints.length ?? 0) === 0}
                     >
                       Undo
                     </button>
-                    <button className="btn btn-sm btn-light" onClick={() => setDrawing(false)}>
+                    <button
+                      className="btn btn-sm btn-light"
+                      onClick={() => setDrawing(false)}
+                    >
                       Done
                     </button>
                   </div>
@@ -412,7 +432,9 @@ export function App() {
         />
       )}
       {toast && (
-        <div className={`toast ${toast.error ? 'error' : ''}`}>{toast.message}</div>
+        <div className={`toast ${toast.error ? 'error' : ''}`}>
+          {toast.message}
+        </div>
       )}
     </div>
   );

@@ -63,7 +63,7 @@ export function HrChart({
   const totalSec = Math.max(1, (tEnd - tStart) / 1000);
 
   const plotW = Math.max(1, w - PAD.l - PAD.r);
-  const x = (t: number) => PAD.l + (((t - tStart) / 1000) / totalSec) * plotW;
+  const x = (t: number) => PAD.l + ((t - tStart) / 1000 / totalSec) * plotW;
 
   // Only show a panel for a metric the file actually carries.
   const panels = SERIES.map((s) => {
@@ -80,7 +80,10 @@ export function HrChart({
   }).filter((p): p is NonNullable<typeof p> => p !== null);
 
   const H =
-    PAD.t + panels.length * PANEL_H + Math.max(0, panels.length - 1) * PANEL_GAP + PAD.b;
+    PAD.t +
+    panels.length * PANEL_H +
+    Math.max(0, panels.length - 1) * PANEL_GAP +
+    PAD.b;
   const bandTop = PAD.t;
   const bandH = Math.max(1, H - PAD.t - PAD.b);
 
@@ -123,7 +126,8 @@ export function HrChart({
     const first = x(valid[0]!.time);
     const last = x(valid[valid.length - 1]!.time);
     let d = `M${first.toFixed(1)} ${baseline.toFixed(1)} `;
-    for (const p of valid) d += `L${x(p.time).toFixed(1)} ${yOf(valueOf(p)!).toFixed(1)} `;
+    for (const p of valid)
+      d += `L${x(p.time).toFixed(1)} ${yOf(valueOf(p)!).toFixed(1)} `;
     d += `L${last.toFixed(1)} ${baseline.toFixed(1)} Z`;
     return d;
   };
@@ -144,7 +148,12 @@ export function HrChart({
           No heart-rate or elevation data in this activity.
         </p>
       ) : (
-        <svg width={w} height={H} role="img" aria-label="Heart rate and elevation over time">
+        <svg
+          width={w}
+          height={H}
+          role="img"
+          aria-label="Heart rate and elevation over time"
+        >
           {/* status-coloured pause bands, spanning every panel so gaps align */}
           {pauses.map((p) => {
             const x0 = x(p.stopTime);
@@ -168,7 +177,14 @@ export function HrChart({
             .map((l) => l.startTime)
             .filter((t): t is number => t !== null && t > tStart)
             .map((t) => (
-              <line key={t} x1={x(t)} y1={bandTop} x2={x(t)} y2={bandTop + bandH} className="hr-lap" />
+              <line
+                key={t}
+                x1={x(t)}
+                y1={bandTop}
+                x2={x(t)}
+                y2={bandTop + bandH}
+                className="hr-lap"
+              />
             ))}
 
           {panels.map((panel, i) => {
@@ -182,8 +198,19 @@ export function HrChart({
                 {/* gridlines + y labels */}
                 {[panel.hi, (panel.lo + panel.hi) / 2, panel.lo].map((v) => (
                   <g key={v}>
-                    <line x1={PAD.l} y1={yOf(v)} x2={w - PAD.r} y2={yOf(v)} className="hr-grid" />
-                    <text x={PAD.l - 6} y={yOf(v) + 3} className="hr-axis" textAnchor="end">
+                    <line
+                      x1={PAD.l}
+                      y1={yOf(v)}
+                      x2={w - PAD.r}
+                      y2={yOf(v)}
+                      className="hr-grid"
+                    />
+                    <text
+                      x={PAD.l - 6}
+                      y={yOf(v) + 3}
+                      className="hr-axis"
+                      textAnchor="end"
+                    >
                       {Math.round(v)}
                     </text>
                   </g>
@@ -195,12 +222,22 @@ export function HrChart({
 
                 {/* ambient area (elevation), then filled overlays, then recorded */}
                 {panel.def.area && (
-                  <path d={areaPath(recorded, valueOf, yOf, baseline)} className="hr-area" />
+                  <path
+                    d={areaPath(recorded, valueOf, yOf, baseline)}
+                    className="hr-area"
+                  />
                 )}
                 {Object.entries(filledByPause).map(([id, recs]) => (
-                  <path key={id} d={linePath(recs, valueOf, yOf, 999)} className="hr-line fill" />
+                  <path
+                    key={id}
+                    d={linePath(recs, valueOf, yOf, 999)}
+                    className="hr-line fill"
+                  />
                 ))}
-                <path d={linePath(recorded, valueOf, yOf)} className="hr-line trace" />
+                <path
+                  d={linePath(recorded, valueOf, yOf)}
+                  className="hr-line trace"
+                />
               </g>
             );
           })}

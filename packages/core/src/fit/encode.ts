@@ -169,8 +169,10 @@ function adjustTotals(
 
   let derivedEnd: number | null = null;
   if (start !== null) {
-    const elapsed = typeof mesg.totalElapsedTime === 'number' ? mesg.totalElapsedTime : 0;
-    const timer = typeof mesg.totalTimerTime === 'number' ? mesg.totalTimerTime : 0;
+    const elapsed =
+      typeof mesg.totalElapsedTime === 'number' ? mesg.totalElapsedTime : 0;
+    const timer =
+      typeof mesg.totalTimerTime === 'number' ? mesg.totalTimerTime : 0;
     derivedEnd = start + Math.max(elapsed, timer) * 1000;
   }
   const end = Math.max(

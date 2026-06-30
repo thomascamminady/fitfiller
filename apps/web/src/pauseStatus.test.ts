@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { pauseStatus, pauseHasGps, BREAK_THRESHOLD_METERS } from './pauseStatus';
+import {
+  pauseStatus,
+  pauseHasGps,
+  BREAK_THRESHOLD_METERS,
+} from './pauseStatus';
 import { makePause } from './test/fixtures';
 
 describe('pauseStatus', () => {

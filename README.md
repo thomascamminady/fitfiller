@@ -115,12 +115,12 @@ Coverage (optional): add `@vitest/coverage-v8` to a package, then
 
 ### Key env vars (`apps/api/.env`)
 
-| Var | Purpose |
-| --- | --- |
-| `AUTH_PROVIDER` | `dev` \| `none` \| `stripe` (stripe is a stub) |
-| `DEV_FORCE_PREMIUM` | unlock premium features locally |
-| `ELEVATION_PROVIDER` | `none` \| `opentopodata` \| `open-elevation` |
-| `CORS_ORIGIN` | comma-separated allowed web origins |
+| Var                  | Purpose                                        |
+| -------------------- | ---------------------------------------------- |
+| `AUTH_PROVIDER`      | `dev` \| `none` \| `stripe` (stripe is a stub) |
+| `DEV_FORCE_PREMIUM`  | unlock premium features locally                |
+| `ELEVATION_PROVIDER` | `none` \| `opentopodata` \| `open-elevation`   |
+| `CORS_ORIGIN`        | comma-separated allowed web origins            |
 
 ## Deploy (Hetzner, single host)
 

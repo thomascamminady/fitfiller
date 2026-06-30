@@ -28,8 +28,18 @@ export function sampleFit(): Buffer {
       cadence: 85,
     } as never);
   for (let s = 0; s <= 4; s++) rec(s, 8 + s * 0.0001, s * 7.6);
-  enc.writeMesg({ mesgNum: M.EVENT, timestamp: new Date(BASE + 4000), event: 'timer', eventType: 'stop' } as never);
-  enc.writeMesg({ mesgNum: M.EVENT, timestamp: new Date(BASE + 64000), event: 'timer', eventType: 'start' } as never);
+  enc.writeMesg({
+    mesgNum: M.EVENT,
+    timestamp: new Date(BASE + 4000),
+    event: 'timer',
+    eventType: 'stop',
+  } as never);
+  enc.writeMesg({
+    mesgNum: M.EVENT,
+    timestamp: new Date(BASE + 64000),
+    event: 'timer',
+    eventType: 'start',
+  } as never);
   for (let s = 0; s <= 4; s++) rec(64 + s, 8.006 + s * 0.0001, 30.4 + s * 7.6);
   enc.writeMesg({
     mesgNum: M.SESSION,
@@ -53,7 +63,10 @@ export function devFieldFit(): Buffer {
     product: 0,
     serialNumber: 1,
   } as never);
-  const devId = { developerDataIndex: 0, applicationId: Array.from({ length: 16 }, (_, i) => i) };
+  const devId = {
+    developerDataIndex: 0,
+    applicationId: Array.from({ length: 16 }, (_, i) => i),
+  };
   const fieldDesc = {
     developerDataIndex: 0,
     fieldDefinitionNumber: 0,
@@ -61,10 +74,14 @@ export function devFieldFit(): Buffer {
     fieldName: 'effort',
     units: 'x',
   };
-  enc.addDeveloperField(0, { mesgNum: M.DEVELOPER_DATA_ID, ...devId } as never, {
-    mesgNum: M.FIELD_DESCRIPTION,
-    ...fieldDesc,
-  } as never);
+  enc.addDeveloperField(
+    0,
+    { mesgNum: M.DEVELOPER_DATA_ID, ...devId } as never,
+    {
+      mesgNum: M.FIELD_DESCRIPTION,
+      ...fieldDesc,
+    } as never,
+  );
   enc.writeMesg({ mesgNum: M.DEVELOPER_DATA_ID, ...devId } as never);
   enc.writeMesg({ mesgNum: M.FIELD_DESCRIPTION, ...fieldDesc } as never);
   const rec = (s: number, lon: number, d: number) =>
@@ -77,8 +94,18 @@ export function devFieldFit(): Buffer {
       developerFields: { 0: 3 },
     } as never);
   for (let s = 0; s <= 4; s++) rec(s, 8 + s * 1e-4, s * 7.6);
-  enc.writeMesg({ mesgNum: M.EVENT, timestamp: new Date(BASE + 4000), event: 'timer', eventType: 'stop' } as never);
-  enc.writeMesg({ mesgNum: M.EVENT, timestamp: new Date(BASE + 64000), event: 'timer', eventType: 'start' } as never);
+  enc.writeMesg({
+    mesgNum: M.EVENT,
+    timestamp: new Date(BASE + 4000),
+    event: 'timer',
+    eventType: 'stop',
+  } as never);
+  enc.writeMesg({
+    mesgNum: M.EVENT,
+    timestamp: new Date(BASE + 64000),
+    event: 'timer',
+    eventType: 'start',
+  } as never);
   for (let s = 0; s <= 4; s++) rec(64 + s, 8.006 + s * 1e-4, 30.4 + s * 7.6);
   return Buffer.from(enc.close());
 }

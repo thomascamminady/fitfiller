@@ -94,13 +94,16 @@ function Privacy() {
         </li>
         <li>
           <strong>Account &amp; billing data</strong> (premium only): handled by
-          our payment processor [Stripe]; we store only the identifiers needed to
-          unlock premium features.
+          our payment processor [Stripe]; we store only the identifiers needed
+          to unlock premium features.
         </li>
       </ul>
       <h3>Third parties</h3>
       <ul>
-        <li>Map tiles are served by [map tile provider]; your IP is visible to them.</li>
+        <li>
+          Map tiles are served by [map tile provider]; your IP is visible to
+          them.
+        </li>
         <li>
           Elevation lookups (premium) send route coordinates to [elevation
           provider].

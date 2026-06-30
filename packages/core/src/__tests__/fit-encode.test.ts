@@ -45,7 +45,9 @@ describe('encodeFit — with a fill', () => {
     }
 
     // The original timer stop/start events are gone.
-    expect(filled.activity.events.filter((e) => e.type === 'stop')).toHaveLength(0);
+    expect(
+      filled.activity.events.filter((e) => e.type === 'stop'),
+    ).toHaveLength(0);
   });
 
   it('adjusts the session total distance and timer time', () => {
@@ -71,8 +73,15 @@ describe('encodeFit — with a fill', () => {
     // Some devices set session.timestamp to the *start* time. Totals must still
     // grow, derived from elapsed/timer time rather than the bogus timestamp.
     const records = [];
-    for (let s = 0; s <= 5; s++) records.push({ sec: s, lat: 47, lon: 8 + s * 1e-4, dist: s * 5 });
-    for (let s = 0; s <= 5; s++) records.push({ sec: 70 + s, lat: 47, lon: 8.006 + s * 1e-4, dist: 25 + s * 5 });
+    for (let s = 0; s <= 5; s++)
+      records.push({ sec: s, lat: 47, lon: 8 + s * 1e-4, dist: s * 5 });
+    for (let s = 0; s <= 5; s++)
+      records.push({
+        sec: 70 + s,
+        lat: 47,
+        lon: 8.006 + s * 1e-4,
+        dist: 25 + s * 5,
+      });
     const bytes = buildFit({
       records,
       events: [
@@ -80,11 +89,20 @@ describe('encodeFit — with a fill', () => {
         { sec: 70, type: 'start' },
       ],
       // endSec = 0 makes session.timestamp == startTime (the quirk).
-      session: { startSec: 0, endSec: 0, totalDistance: 50, totalTimerTime: 12 },
+      session: {
+        startSec: 0,
+        endSec: 0,
+        totalDistance: 50,
+        totalTimerTime: 12,
+      },
     });
     const dec = decodeFit(bytes);
     const pause = dec.activity.pauses[0]!;
-    const fill = buildGapFill({ pause, route: straightRoute(pause), config: { actualBreakSeconds: 5 } });
+    const fill = buildGapFill({
+      pause,
+      route: straightRoute(pause),
+      config: { actualBreakSeconds: 5 },
+    });
     const filled = decodeFit(encodeFit(dec.raw, [fill]));
 
     expect(filled.activity.summary.totalDistanceMeters!).toBeGreaterThan(50);
@@ -94,9 +112,36 @@ describe('encodeFit — with a fill', () => {
   it('accumulates distance shift across two filled gaps', () => {
     // Build a run with two forgotten pauses.
     const records = [];
-    for (let s = 0; s <= 5; s++) records.push({ sec: s, lat: 47, lon: 8 + s * 0.0001, dist: s * 5, alt: 100, hr: 150, cad: 85 });
-    for (let s = 0; s <= 5; s++) records.push({ sec: 65 + s, lat: 47, lon: 8.006 + s * 0.0001, dist: 25 + s * 5, alt: 100, hr: 150, cad: 85 });
-    for (let s = 0; s <= 5; s++) records.push({ sec: 130 + s, lat: 47, lon: 8.012 + s * 0.0001, dist: 50 + s * 5, alt: 100, hr: 150, cad: 85 });
+    for (let s = 0; s <= 5; s++)
+      records.push({
+        sec: s,
+        lat: 47,
+        lon: 8 + s * 0.0001,
+        dist: s * 5,
+        alt: 100,
+        hr: 150,
+        cad: 85,
+      });
+    for (let s = 0; s <= 5; s++)
+      records.push({
+        sec: 65 + s,
+        lat: 47,
+        lon: 8.006 + s * 0.0001,
+        dist: 25 + s * 5,
+        alt: 100,
+        hr: 150,
+        cad: 85,
+      });
+    for (let s = 0; s <= 5; s++)
+      records.push({
+        sec: 130 + s,
+        lat: 47,
+        lon: 8.012 + s * 0.0001,
+        dist: 50 + s * 5,
+        alt: 100,
+        hr: 150,
+        cad: 85,
+      });
     const bytes = buildFit({
       records,
       events: [
@@ -111,7 +156,11 @@ describe('encodeFit — with a fill', () => {
     expect(decoded.activity.pauses).toHaveLength(2);
 
     const fills = decoded.activity.pauses.map((p) =>
-      buildGapFill({ pause: p, route: straightRoute(p), config: { actualBreakSeconds: 5 } }),
+      buildGapFill({
+        pause: p,
+        route: straightRoute(p),
+        config: { actualBreakSeconds: 5 },
+      }),
     );
     const filled = decodeFit(encodeFit(decoded.raw, fills));
 

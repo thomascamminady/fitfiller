@@ -24,7 +24,10 @@ export function registerActivityRoutes(
   const { store, fillService } = deps;
 
   /** Look up an activity, enforcing ownership; replies 404 and returns null. */
-  function load(req: FastifyRequest<{ Params: IdParams }>, reply: FastifyReply) {
+  function load(
+    req: FastifyRequest<{ Params: IdParams }>,
+    reply: FastifyReply,
+  ) {
     const entry = store.get(req.params.id);
     if (
       !entry ||
@@ -43,7 +46,9 @@ export function registerActivityRoutes(
       file = await req.file();
     } catch {
       // Thrown when the request isn't multipart/form-data.
-      return reply.code(400).send({ error: 'Expected a multipart FIT file upload' });
+      return reply
+        .code(400)
+        .send({ error: 'Expected a multipart FIT file upload' });
     }
     if (!file) {
       return reply.code(400).send({ error: 'Expected a FIT file upload' });
@@ -116,9 +121,10 @@ export function registerActivityRoutes(
       if (!entry) return;
       const parsed = exportRequestSchema.safeParse(req.body);
       if (!parsed.success) {
-        return reply
-          .code(400)
-          .send({ error: 'Invalid export request', detail: parsed.error.issues });
+        return reply.code(400).send({
+          error: 'Invalid export request',
+          detail: parsed.error.issues,
+        });
       }
       let bytes: Uint8Array;
       try {
@@ -127,7 +133,11 @@ export function registerActivityRoutes(
           parsed.data.fills,
           req.auth,
         );
-        bytes = encodeFit(entry.decoded.raw, fills, entry.decoded.fieldDescriptions);
+        bytes = encodeFit(
+          entry.decoded.raw,
+          fills,
+          entry.decoded.fieldDescriptions,
+        );
       } catch (err) {
         return handleFillError(err, reply);
       }
@@ -150,9 +160,10 @@ export function registerActivityRoutes(
       if (!entry) return;
       const parsed = exportRequestSchema.safeParse(req.body);
       if (!parsed.success) {
-        return reply
-          .code(400)
-          .send({ error: 'Invalid export request', detail: parsed.error.issues });
+        return reply.code(400).send({
+          error: 'Invalid export request',
+          detail: parsed.error.issues,
+        });
       }
       try {
         const fills = await fillService.buildMany(
@@ -160,7 +171,11 @@ export function registerActivityRoutes(
           parsed.data.fills,
           req.auth,
         );
-        const bytes = encodeFit(entry.decoded.raw, fills, entry.decoded.fieldDescriptions);
+        const bytes = encodeFit(
+          entry.decoded.raw,
+          fills,
+          entry.decoded.fieldDescriptions,
+        );
 
         const original = summarize(entry.decoded.activity);
         let ok = true;
@@ -194,7 +209,9 @@ export function registerActivityRoutes(
 
 function handleFillError(err: unknown, reply: FastifyReply) {
   if (err instanceof PremiumRequiredError) {
-    return reply.code(402).send({ error: err.message, code: 'premium_required' });
+    return reply
+      .code(402)
+      .send({ error: err.message, code: 'premium_required' });
   }
   if (err instanceof PauseNotFoundError) {
     return reply.code(404).send({ error: err.message });

@@ -84,7 +84,9 @@ describe('HttpElevationProvider', () => {
 
   it('treats invalid elevation values as null', async () => {
     const fetchImpl = vi.fn().mockResolvedValue(
-      jsonResponse({ results: [{ elevation: null }, { elevation: 'nope' }, {}] }),
+      jsonResponse({
+        results: [{ elevation: null }, { elevation: 'nope' }, {}],
+      }),
     );
     const provider = new HttpElevationProvider({
       name: 'test',
