@@ -15,6 +15,7 @@ function makeApp(env: Record<string, string> = {}) {
       AUTH_PROVIDER: 'dev',
       DEV_FORCE_PREMIUM: 'false',
       ELEVATION_PROVIDER: 'none', // keep tests offline
+      ROUTING_PROVIDER: 'none', // keep tests offline
       ...env,
     } as never),
   );

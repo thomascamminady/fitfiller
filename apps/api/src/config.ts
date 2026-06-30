@@ -23,6 +23,13 @@ const schema = z.object({
     .default('opentopodata'),
   ELEVATION_API_URL: z.string().optional(),
   ELEVATION_API_KEY: z.string().optional(),
+
+  // "Snap to path" routing. Defaults to BRouter (free, key-less, trail-aware).
+  // Only called when the user opts in per-gap, and failures fall back to the
+  // straight drawn route — set to `none` to disable entirely (e.g. in tests).
+  ROUTING_PROVIDER: z.enum(['none', 'brouter']).default('brouter'),
+  ROUTING_URL: z.string().optional(),
+  ROUTING_PROFILE: z.string().optional(),
 });
 
 export type AppConfig = z.infer<typeof schema> & {

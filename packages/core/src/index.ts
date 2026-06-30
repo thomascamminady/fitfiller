@@ -45,3 +45,13 @@ export type {
   ElevationProvider,
   HttpElevationProviderOptions,
 } from './elevation/provider.js';
+
+// Routing (snap a drawn gap to the path network)
+export {
+  NullRoutingProvider,
+  BRouterRoutingProvider,
+} from './routing/provider.js';
+export type {
+  RoutingProvider,
+  BRouterRoutingProviderOptions,
+} from './routing/provider.js';

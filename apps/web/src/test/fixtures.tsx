@@ -76,6 +76,7 @@ export function defaultFill(): PauseFillState {
     cadenceValue: 85,
     elevation: 'linear',
     gradeAdjust: false,
+    snapToPath: false,
     preview: null,
     previewError: null,
   };

@@ -16,6 +16,9 @@ services:
       ELEVATION_PROVIDER: ${ELEVATION_PROVIDER:-opentopodata}
       ELEVATION_API_URL: ${ELEVATION_API_URL:-}
       ELEVATION_API_KEY: ${ELEVATION_API_KEY:-}
+      ROUTING_PROVIDER: ${ROUTING_PROVIDER:-brouter}
+      ROUTING_URL: ${ROUTING_URL:-}
+      ROUTING_PROFILE: ${ROUTING_PROFILE:-trekking}
     expose:
       - '3001'
 

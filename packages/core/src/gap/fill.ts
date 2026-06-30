@@ -29,6 +29,11 @@ export interface GapFillConfig {
    * data along the route; otherwise behaves as constant pace.
    */
   gradeAdjust?: boolean;
+  /**
+   * Snap the drawn route to the path network before filling. Handled upstream
+   * (a {@link RoutingProvider} replaces the route); ignored by `buildGapFill`.
+   */
+  snapToPath?: boolean;
 }
 
 export interface GapFillInput {

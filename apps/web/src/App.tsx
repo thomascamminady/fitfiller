@@ -34,6 +34,7 @@ function defaultFill(): PauseFillState {
     cadenceValue: 85,
     elevation: 'linear',
     gradeAdjust: false,
+    snapToPath: false,
     preview: null,
     previewError: null,
   };
@@ -209,6 +210,7 @@ export function App() {
           cadence: { mode: f.cadence, value: f.cadenceValue },
           elevation: { mode: f.elevation },
           gradeAdjust: f.gradeAdjust,
+          snapToPath: f.snapToPath,
         },
       };
     },

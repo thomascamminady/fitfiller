@@ -9,6 +9,7 @@ import {
   type PremiumStore,
 } from './auth/index.js';
 import { createElevationProvider } from './elevation.js';
+import { createRoutingProvider } from './routing.js';
 import { ActivityStore } from './store.js';
 import { FillService } from './services/fill-service.js';
 import { registerHealthRoutes } from './routes/health.js';
@@ -48,7 +49,10 @@ export async function buildApp(config: AppConfig): Promise<FastifyInstance> {
     premium: authBundle.premium,
     currentUserId: authBundle.currentUserId,
     store: new ActivityStore(),
-    fillService: new FillService(createElevationProvider(config)),
+    fillService: new FillService(
+      createElevationProvider(config),
+      createRoutingProvider(config),
+    ),
   };
 
   // Resolve identity / entitlement once per request.

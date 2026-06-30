@@ -17,6 +17,7 @@ export const gapFillConfigSchema = z.object({
   cadence: fillModeSchema.optional(),
   elevation: z.object({ mode: z.enum(['linear', 'route']) }).optional(),
   gradeAdjust: z.boolean().optional(),
+  snapToPath: z.boolean().optional(),
 });
 
 export const fillRequestSchema = z.object({

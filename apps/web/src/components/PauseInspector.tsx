@@ -18,6 +18,7 @@ export interface PauseFillState {
   cadenceValue: number;
   elevation: 'linear' | 'route';
   gradeAdjust: boolean;
+  snapToPath: boolean;
   preview: GapFill | null;
   previewError: string | null;
 }
@@ -355,6 +356,17 @@ function PauseCard({
                     Clear
                   </button>
                 </div>
+              </div>
+
+              <div className="toggle-row">
+                <span>
+                  Snap to path{' '}
+                  <span className="sub">follow roads &amp; trails</span>
+                </span>
+                <Switch
+                  checked={state.snapToPath}
+                  onChange={(v) => update({ snapToPath: v })}
+                />
               </div>
 
               <div className="field">

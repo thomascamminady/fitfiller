@@ -70,6 +70,7 @@ export interface GapFillConfig {
   cadence?: { mode: FillMode; value?: number };
   elevation?: { mode: 'linear' | 'route' };
   gradeAdjust?: boolean;
+  snapToPath?: boolean;
 }
 
 export interface FillRequest {

@@ -4,7 +4,9 @@ import {
   type ElevationProvider,
   type GapFill,
   type GapFillInput,
+  type GeoPoint,
   type PauseSegment,
+  type RoutingProvider,
 } from '@fitfiller/core';
 import type { AuthContext } from '../auth/index.js';
 import type { FillRequest } from '../schemas.js';
@@ -37,7 +39,10 @@ function requiresElevation(req: FillRequest): boolean {
  * off the client).
  */
 export class FillService {
-  constructor(private readonly elevation: ElevationProvider) {}
+  constructor(
+    private readonly elevation: ElevationProvider,
+    private readonly routing: RoutingProvider,
+  ) {}
 
   private findPause(decoded: DecodedFit, pauseId: string): PauseSegment {
     const pause = decoded.activity.pauses.find((p) => p.id === pauseId);
@@ -58,14 +63,22 @@ export class FillService {
 
     const pause = this.findPause(decoded, req.pauseId);
 
+    // Snap the drawn route to real paths when asked. Failures fall back to the
+    // straight route, so this never breaks a fill.
+    let route: GeoPoint[] = req.route;
+    if (req.config.snapToPath) {
+      const snapped = await this.routing.snap(req.route);
+      if (snapped && snapped.length >= 2) route = snapped;
+    }
+
     const input: GapFillInput = {
       pause,
-      route: req.route,
+      route,
       config: req.config,
     };
 
     if (requiresElevation(req)) {
-      input.routeElevations = await this.elevation.lookup(req.route);
+      input.routeElevations = await this.elevation.lookup(route);
     }
 
     return buildGapFill(input);
