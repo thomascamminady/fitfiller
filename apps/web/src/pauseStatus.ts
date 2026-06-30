@@ -46,8 +46,8 @@ interface StatusMeta {
 }
 
 export const STATUS_META: Record<PauseStatus, StatusMeta> = {
-  break: { tone: 'break', color: '#7c8b9a', short: 'Likely a real break' },
-  issue: { tone: 'issue', color: '#e8642c', short: 'Needs a fix' },
-  fixed: { tone: 'fixed', color: '#1f6f4a', short: 'Filling this gap' },
-  nogps: { tone: 'nogps', color: '#a9b4ac', short: 'No GPS to trace' },
+  break: { tone: 'break', color: '#8a9099', short: 'Likely a real break' },
+  issue: { tone: 'issue', color: '#d9622b', short: 'Needs a fix' },
+  fixed: { tone: 'fixed', color: '#1f7a4d', short: 'Filling this gap' },
+  nogps: { tone: 'nogps', color: '#aab0b6', short: 'No GPS to trace' },
 };

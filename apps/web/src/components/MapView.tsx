@@ -12,10 +12,10 @@ const MAP_STYLE =
   import.meta.env.VITE_MAP_STYLE ??
   'https://tiles.openfreemap.org/styles/liberty';
 
-const TRACE = '#1b1b1b'; // recorded track — black
+const TRACE = '#181a1f'; // recorded track — graphite
 const PAUSE = '#2563eb'; // where the watch paused — blue
 const RESUME = '#dc2626'; // where it resumed — red
-const FILL = '#1f6f4a'; // the reconstructed segment — green
+const FILL = '#1f7a4d'; // the reconstructed segment — green (== "done")
 
 interface Props {
   points: TrackPoint[];

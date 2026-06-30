@@ -20,7 +20,7 @@ function Logo() {
     <svg width="34" height="20" viewBox="0 0 34 20" aria-hidden="true">
       <path
         d="M2 14 H13"
-        stroke="#1b1b1b"
+        stroke="#181a1f"
         strokeWidth="2.4"
         strokeLinecap="round"
       />
@@ -33,7 +33,7 @@ function Logo() {
       />
       <path
         d="M21 14 H32"
-        stroke="#1b1b1b"
+        stroke="#181a1f"
         strokeWidth="2.4"
         strokeLinecap="round"
       />
