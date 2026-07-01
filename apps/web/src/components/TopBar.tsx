@@ -75,15 +75,18 @@ export function TopBar({ onReset, hasActivity }: Props) {
           </button>
         )}
       </div>
-      <a
-        className="corner-link"
-        href={GITHUB_URL}
-        target="_blank"
-        rel="noreferrer"
-        aria-label="Source on GitHub"
-      >
-        <GithubMark />
-      </a>
+      {/* The corner GitHub triangle only shows on the landing page. */}
+      {!hasActivity && (
+        <a
+          className="corner-link"
+          href={GITHUB_URL}
+          target="_blank"
+          rel="noreferrer"
+          aria-label="Source on GitHub"
+        >
+          <GithubMark />
+        </a>
+      )}
     </header>
   );
 }

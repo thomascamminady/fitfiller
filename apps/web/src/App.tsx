@@ -341,35 +341,6 @@ export function App() {
                   }}
                 />
               )}
-              {drawing && (
-                <div className="draw-banner">
-                  <span className="draw-step">
-                    {(() => {
-                      const n = activeFill?.waypoints.length ?? 0;
-                      if (n === 0)
-                        return 'Click the map at the blue “Paused” point, then along the path you ran.';
-                      return `${n} point${n === 1 ? '' : 's'} added — keep clicking toward the red “Resumed” point.`;
-                    })()}
-                  </span>
-                  <div className="draw-actions">
-                    <button
-                      className="btn btn-sm btn-ghost-light"
-                      onClick={() =>
-                        activePause && undoWaypoint(activePause.id)
-                      }
-                      disabled={(activeFill?.waypoints.length ?? 0) === 0}
-                    >
-                      Undo
-                    </button>
-                    <button
-                      className="btn btn-sm btn-light"
-                      onClick={() => setDrawing(false)}
-                    >
-                      Done
-                    </button>
-                  </div>
-                </div>
-              )}
               <div className="map-legend">
                 <div className="legend-row">
                   <span className="swatch trace" /> Recorded track
