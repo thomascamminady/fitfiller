@@ -35,8 +35,12 @@ describe('App', () => {
   it('shows the landing page with author attribution in the footer', async () => {
     render(<App />);
     expect(screen.getByText(/fix your \.fit file/i)).toBeInTheDocument();
+    expect(screen.getByText(/by thomas camminady/i)).toBeInTheDocument();
     expect(
-      screen.getByRole('link', { name: /thomas camminady/i }),
+      screen.getByRole('link', { name: /camminady on github/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: /camminady on linkedin/i }),
     ).toBeInTheDocument();
   });
 

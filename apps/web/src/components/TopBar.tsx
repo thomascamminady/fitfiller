@@ -4,6 +4,8 @@ export const GITHUB_URL =
 
 export const AUTHOR_URL = 'https://github.com/thomascamminady';
 
+export const LINKEDIN_URL = 'https://www.linkedin.com/in/camminady/';
+
 interface Props {
   onReset: () => void;
   hasActivity: boolean;

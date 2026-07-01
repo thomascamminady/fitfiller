@@ -912,6 +912,19 @@ a {
   color: var(--muted);
 }
 
+.footer-credit {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+}
+.footer .social {
+  display: inline-flex;
+  color: var(--muted);
+}
+.footer .social:hover {
+  color: var(--ink);
+}
+
 .footer nav {
   display: flex;
   gap: 18px;
