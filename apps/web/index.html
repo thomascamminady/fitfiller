@@ -4,11 +4,65 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>fitfiller</title>
+
+    <title>fitfiller — fix your .fit file when you forgot to unpause</title>
     <meta
       name="description"
-      content="Forgot to unpause your watch? fitfiller reconstructs the missing segment and re-exports a corrected .fit file."
+      content="Forgot to unpause your GPS watch? fitfiller rebuilds the missing part of your run and exports a corrected .fit file — free, private and entirely in your browser. Works with Garmin, Wahoo, Coros, Strava."
     />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#181a1f" />
+    <link rel="canonical" href="https://fit-filler.com/" />
+
+    <!-- Open Graph (link previews on Reddit, Discord, Slack, Facebook…) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="fitfiller" />
+    <meta property="og:url" content="https://fit-filler.com/" />
+    <meta
+      property="og:title"
+      content="fitfiller — fix your .fit file when you forgot to unpause"
+    />
+    <meta
+      property="og:description"
+      content="Rebuild the missing part of your run and export a corrected .fit file. Free, private, runs entirely in your browser."
+    />
+    <meta property="og:image" content="https://fit-filler.com/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="fitfiller — fix your .fit file when you forgot to unpause"
+    />
+    <meta
+      name="twitter:description"
+      content="Rebuild the missing part of your run and export a corrected .fit file. Free, private, runs entirely in your browser."
+    />
+    <meta name="twitter:image" content="https://fit-filler.com/og.png" />
+
+    <!-- Structured data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "fitfiller",
+        "url": "https://fit-filler.com/",
+        "description": "Forgot to unpause your GPS watch? fitfiller rebuilds the missing part of your run and exports a corrected .fit file — free, private and entirely in your browser.",
+        "applicationCategory": "HealthApplication",
+        "operatingSystem": "Any (modern web browser)",
+        "browserRequirements": "Requires JavaScript",
+        "isAccessibleForFree": true,
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+        "author": {
+          "@type": "Person",
+          "name": "Thomas Camminady",
+          "url": "https://github.com/thomascamminady"
+        }
+      }
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -17,7 +71,18 @@
     />
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <noscript>
+        <h1>fitfiller — fix your .fit file when you forgot to unpause</h1>
+        <p>
+          Forgot to unpause your GPS watch and lost part of your run? fitfiller
+          rebuilds the missing segment and exports a corrected .fit file you can
+          re-upload to Garmin Connect, Strava and more. It is free, open source,
+          and runs entirely in your browser — your file never leaves your
+          device. Please enable JavaScript to use it.
+        </p>
+      </noscript>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
     <!-- Privacy-friendly, cookieless analytics (no personal data). -->
     <script
